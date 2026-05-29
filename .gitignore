@@ -1,0 +1,15 @@
+# Compiled binaries
+*.o
+*.a
+myprogram
+main
+
+# Debug symbols
+*.dSYM
+*.dSYM/**
+
+# Backup files
+*~
+
+# macOS
+.DS_Store

@@ -1,29 +1,14 @@
 #include <stdio.h>
-
-// Test for Lesson 1: Hello World
-
+void reverseArray(int *arr, int n){
+    for(int i=0; i < n/2; i++){
+        int l=arr[i],r=arr[n-i-1];
+        arr[i] = r;
+        arr[n-i-1] = l;
+    }
+}
 int main() {
-    printf("====================================\n");
-    printf("   LESSON 1: HELLO WORLD\n");
-    printf("====================================\n\n");
-
-    // This is the reference solution
-    printf("Reference output:\n");
-    printf("Hello, World!\n");
-    printf("(Your name here)\n\n");
-
-    printf("====================================\n");
-    printf("Your output (from main.c):\n");
-    printf("====================================\n\n");
-
-    // Run the user's main function logic
-    // For this lesson, we'll just show what they should do
-    printf("Hello, World!\n");
-    printf("C Student\n");
-
-    printf("\n====================================\n");
-    printf("✅ If you see Hello, World! above, it works!\n");
-    printf("====================================\n");
-
+    int arr[4] = {1,2,3,4};
+    reverseArray(arr, 4);
+    for(int i=0;i<4;i++) printf("%d ", arr[i]);
     return 0;
 }

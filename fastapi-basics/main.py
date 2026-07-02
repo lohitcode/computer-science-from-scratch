@@ -1,26 +1,29 @@
 #!/usr/bin/env python3
 """
-🎯 PROBLEM 1: Your First FastAPI Route
-========================================
+🎯 PROBLEM 2: Path Parameters
+================================
 
-TODO: Create a FastAPI app with a GET route that returns a greeting
+TODO: Create a route that accepts a user_id parameter
 
 Steps:
-1. Import FastAPI from fastapi
-2. Create app instance: app = FastAPI()
-3. Add a GET route "/" that returns {"message": "Hello World"}
-4. Run it with: uvicorn main:app --reload
+1. Import FastAPI
+2. Create app instance
+3. Add route "/users/{user_id}" that returns the user_id
+4. Type hint user_id as int
 
 Remember:
-- @app.get("/") defines a GET route (like app.get() in Express)
-- async def makes it async (like async in JS)
-- Return a dict (like res.json() in Express)
+- {user_id} in path = parameter (like :id in Express)
+- Function parameter must match path parameter name
+- FastAPI auto-converts to int (if you type hint it!)
 
-Expected response when visiting http://localhost:8000/:
-    {"message": "Hello World"}
+Expected response when visiting http://localhost:8000/users/123:
+    {"user_id": 123, "doubled": 246}
 
-Run command:
-    uvicorn main:app --reload
+vs Express:
+    app.get('/users/:id', (req, res) => {
+        const id = parseInt(req.params.id);
+        res.json({ id, doubled: id * 2 });
+    });
 """
 
 # Your code here:
@@ -28,6 +31,12 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+
+@app.get("/users/{user_id}")
+async def get_user(user_id: int):
+    return {"user_id": user_id, "doubled": user_id * 2}

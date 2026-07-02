@@ -1,54 +1,55 @@
 # FastAPI for Express/Hono Developers
 
-**Current: Lesson 1 - Your First API**
+**Current: Lesson 2 - Path Parameters**
 
 ---
 
 ## 📚 Quick Reference
 
-For full lesson content, see: **[lessons/01-your-first-api.md](lessons/01-your-first-api.md)**
+For full lesson content, see: **[lessons/02-path-parameters.md](lessons/02-path-parameters.md)**
+
+Previous lessons:
+- **[lessons/01-your-first-api.md](lessons/01-your-first-api.md)**
+- **[lessons/00-fundamentals.md](lessons/00-fundamentals.md)** - What is FastAPI?
+- **[lessons/00-virtual-environments.md](lessons/00-virtual-environments.md)** - venv guide
 
 ---
 
-## 🔵 Your First FastAPI App
+## 🔵 Path Parameters
 
-FastAPI is like Express/Hono but with:
-- **Built-in type validation** (Pydantic)
-- **Auto-generated docs** (Swagger UI)
-- **Async/await by default**
-
-**JavaScript (Express):**
+**Express:**
 ```javascript
-app.get("/", (req, res) => {
-  res.json({ message: "Hello" });
+app.get("/users/:id", (req, res) => {
+    const id = req.params.id;
+    res.json({ id });
 });
 ```
 
-**Python (FastAPI):**
+**FastAPI:**
 ```python
-@app.get("/")
-async def root():
-    return {"message": "Hello"}
+@app.get("/users/{user_id}")
+async def get_user(user_id: int):
+    return {"user_id": user_id}
 ```
+
+**No `req.params` - the parameter comes straight into your function!**
 
 ---
 
-## 📦 Setup (One Time)
+## 🎯 Type Conversion
 
-```bash
-pip install fastapi uvicorn
+FastAPI auto-converts based on type hint:
+
+```python
+@app.get("/items/{item_id}")
+async def get_item(item_id: int):  # ← Auto converts to int!
+    return {"item_id": item_id}
 ```
+
+**Visit `/items/42` → `{"item_id": 42}` (int, not string!)**
+
+**Visit `/items/abc` → `422 Unprocessable Entity` (auto validation!)**
 
 ---
 
-## ▶️ Run Your App
-
-```bash
-uvicorn main:app --reload
-```
-
-Then visit: http://localhost:8000/docs
-
----
-
-**See `main.py` for your first exercise!**
+**See `main.py` for your current exercise!**

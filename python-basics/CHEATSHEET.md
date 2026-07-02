@@ -216,6 +216,58 @@ class Product:
 
 ---
 
+## 🎨 Decorators (Essential for FastAPI!)
+
+**Decorator = Function that modifies another function**
+
+```python
+# Basic decorator
+def log_calls(func):
+    def wrapper(*args, **kwargs):
+        print(f"Calling {func.__name__}")
+        result = func(*args, **kwargs)
+        print(f"{func.__name__} done")
+        return result
+    return wrapper
+
+@log_calls
+def get_user(user_id):
+    return {"id": user_id}
+
+# Same as: get_user = log_calls(get_user)
+```
+
+**FastAPI uses decorators for routes:**
+
+```python
+@app.get("/")              # Route decorator
+async def root():
+    return {"message": "Hello"}
+
+@app.post("/users")         # Route decorator
+async def create_user():
+    return {"created": True}
+```
+
+**Common built-in decorators:**
+
+```python
+class Example:
+    @staticmethod
+    def static_method():
+        pass
+
+    @classmethod
+    def class_method(cls):
+        pass
+
+    @property
+    def get_value(self):
+        return self._value
+```
+
+---
+
 ## 🎯 Common Patterns
 
 ```python

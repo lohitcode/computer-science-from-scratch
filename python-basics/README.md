@@ -1,43 +1,61 @@
 # Python for JavaScript Developers
 
-**Current: Lesson 5 - Async & Error Handling (FINAL LESSON!)**
+**Current: Lesson 6 - Decorators (Essential for FastAPI!)**
 
 ---
 
 ## 📚 Quick Reference
 
-For full lesson content, see: **[lessons/05-async-error-handling.md](lessons/05-async-error-handling.md)**
+For full lesson content, see: **[lessons/06-decorators.md](lessons/06-decorators.md)**
 
 Previous lessons:
-- **[lessons/01-variables-types.md](lessons/01-variables-types.md)**
-- **[lessons/02-functions-control-flow.md](lessons/02-functions-control-flow.md)**
-- **[lessons/03-data-structures.md](lessons/03-data-structures.md)**
-- **[lessons/04-classes-type-hints.md](lessons/04-classes-type-hints.md)**
+- **[lessons/01-variables-types.md](lessons/01-variables-types.md)** - Variables, types, f-strings
+- **[lessons/02-functions-control-flow.md](lessons/02-functions-control-flow.md)** - Functions, conditionals, loops
+- **[lessons/03-data-structures.md](lessons/03-data-structures.md)** - Lists, dicts, sets, tuples
+- **[lessons/04-classes-type-hints.md](lessons/04-classes-type-hints.md)** - Classes, type hints, Pydantic
+- **[lessons/05-async-error-handling.md](lessons/05-async-error-handling.md)** - Try/except, async/await, context managers
+- **[lessons/06-decorators.md](lessons/06-decorators.md)** - The `@` syntax (FastAPI uses this!)
 
 ---
 
-## 🔵 Context Managers (Current Problem - FINAL!)
+## 🔵 Decorators: The `@` Syntax
 
-The `with` statement automatically handles cleanup (like `finally` blocks):
+**Decorator = A function that modifies another function**
+
+**Express middleware vs Python decorator:**
+
+```javascript
+// Express
+app.get("/", (req, res) => {
+    res.json({ message: "Hello" });
+});
+```
 
 ```python
-with open("file.txt", "r") as f:
-    content = f.read()
-# File closes automatically here!
+# FastAPI
+@app.get("/")
+async def root():
+    return {"message": "Hello"}
 ```
 
-**JavaScript equivalent (more complex):**
-```javascript
-const f = openFile("file.txt");
-try {
-    const content = f.read();
-} finally {
-    f.close();
-}
-```
-
-**Python's `with` is cleaner!** Automatically closes resources.
+**`@app.get("/")` is a decorator!** It registers your function for the GET `/` route.
 
 ---
 
-**See `main.py` for your current exercise!**
+## 🎯 Why Decorators Matter for FastAPI
+
+FastAPI uses decorators EVERYWHERE:
+
+```python
+@app.get("/")              # Route decorator
+@app.post("/users")         # Route decorator
+@app.delete("/items/{id}")  # Route decorator
+```
+
+**Every route definition uses the `@` syntax!**
+
+---
+
+**See `lessons/06-decorators.md` for the complete guide!**
+
+**Now you're ready for FastAPI!** 🚀

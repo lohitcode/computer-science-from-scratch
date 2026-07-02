@@ -1,0 +1,244 @@
+#!/usr/bin/env python3
+"""
+🐍 Python for JavaScript Developers - Interactive Course
+========================================================
+
+Run this to start learning Python interactively!
+
+Usage:
+    python main.py              # Start interactive mode
+    python main.py lesson 1     # Run specific lesson
+    python main.py test         # Test your knowledge
+"""
+
+import sys
+
+print("""
+╔════════════════════════════════════════════════════════════╗
+║                                                            ║
+║     🐍 Python for JavaScript Developers                   ║
+║                                                            ║
+║     Learn Python basics for FastAPI & AI projects          ║
+║                                                            ║
+╚════════════════════════════════════════════════════════════╝
+""")
+
+def show_menu():
+    """Display main menu"""
+    print("\n📚 What would you like to do?\n")
+    print("  1. Start from Lesson 1 (Variables & Types)")
+    print("  2. Go to specific lesson")
+    print("  3. See progress checklist")
+    print("  4. Quick reference (cheatsheet)")
+    print("  5. Test your knowledge")
+    print("  6. Exit\n")
+    return input("Enter choice (1-6): ").strip()
+
+def run_lesson(lesson_num):
+    """Run a specific lesson"""
+    lessons = {
+        1: ("lesson1_variables.py", "Variables & Types"),
+        2: ("lesson2_functions.py", "Functions & Control Flow"),
+        3: ("lesson3_data_structures.py", "Data Structures"),
+        4: ("lesson4_classes.py", "Classes & Type Hints"),
+        5: ("lesson5_async.py", "Async & Error Handling"),
+    }
+
+    if lesson_num not in lessons:
+        print(f"❌ Invalid lesson number. Choose 1-{len(lessons)}")
+        return
+
+    filename, title = lessons[lesson_num]
+
+    print(f"\n{'='*60}")
+    print(f"📖 LESSON {lesson_num}: {title}")
+    print(f"{'='*60}\n")
+
+    try:
+        with open(filename, 'r') as f:
+            content = f.read()
+            # Show first few lines as preview
+            lines = content.split('\n')[:30]
+            print('\n'.join(lines))
+            print(f"\n... (file continues)")
+
+        print(f"\n💡 To run this lesson interactively:")
+        print(f"   python {filename}")
+        print(f"\n💡 Then complete the exercises marked with TODO")
+
+        # Ask if they want to run it
+        response = input("\nRun this lesson now? (y/n): ").strip().lower()
+        if response == 'y':
+            import subprocess
+            subprocess.run([sys.executable, filename])
+
+    except FileNotFoundError:
+        print(f"❌ Could not find {filename}")
+
+def show_progress():
+    """Show progress checklist"""
+    print("\n📋 Progress Checklist\n")
+
+    lessons = [
+        ("Lesson 1: Variables & Types", [
+            "Variables (no let/const)",
+            "Basic types (str, int, float, bool, None)",
+            "F-strings",
+            "Naming conventions (snake_case)",
+            "Operators (and, or, not)"
+        ]),
+        ("Lesson 2: Functions & Control Flow", [
+            "Functions with def",
+            "Default parameters",
+            "Multiple return values",
+            "Conditionals (if/elif/else)",
+            "Loops (for, while)",
+            "List comprehensions"
+        ]),
+        ("Lesson 3: Data Structures", [
+            "Lists (methods, slicing)",
+            "Dictionaries (key-value pairs)",
+            "Sets (unique values)",
+            "Tuples (immutable)",
+            "Nested structures"
+        ]),
+        ("Lesson 4: Classes & Type Hints", [
+            "Type hints in functions",
+            "Basic classes",
+            "Pydantic-style models",
+            "Inheritance",
+            "Data classes"
+        ]),
+        ("Lesson 5: Async & Error Handling", [
+            "try/except blocks",
+            "Raising exceptions",
+            "Context managers (with)",
+            "async/await",
+            "asyncio.gather"
+        ])
+    ]
+
+    for lesson_title, topics in lessons:
+        print(f"📖 {lesson_title}")
+        for topic in topics:
+            print(f"   [ ] {topic}")
+        print()
+
+    print("💡 Mark complete as you finish each topic!")
+
+def show_cheatsheet():
+    """Show quick reference"""
+    print("\n🔤 Python vs JavaScript Quick Reference\n")
+
+    comparisons = [
+        ("Variables", "let x = 1", "x = 1"),
+        ("Constants", "const MAX = 100", "MAX = 100 (convention)"),
+        ("Functions", "function f() {}", "def f():"),
+        ("Arrow func", "(x) => x*2", "lambda x: x*2"),
+        ("Boolean ops", "&& || !", "and or not"),
+        ("Null", "null", "None"),
+        ("True/False", "true / false", "True / False"),
+        ("Try/catch", "try {} catch {}", "try: except:"),
+        ("Loops", "for(let i=0; i<n; i++)", "for i in range(n)"),
+        ("Array", "[1,2,3]", "[1,2,3] (list)"),
+        ("Object", "{key:val}", '{"key":"val"} (dict)"),
+    ]
+
+    print(f"{'JavaScript':<30} {'Python':<30}")
+    print("-" * 60)
+    for concept, js, py in comparisons:
+        print(f"{js:<30} {py:<30}  # {concept}")
+
+    print("\n💡 See CHEATSHEET.md for full reference!")
+
+def run_quiz():
+    """Run a quick quiz"""
+    print("\n🧠 Quick Quiz\n")
+
+    questions = [
+        {
+            "q": "How do you declare a variable in Python?",
+            "options": ["a) let x = 1", "b) var x = 1", "c) x = 1", "d) const x = 1"],
+            "answer": "c",
+            "explain": "Python just uses assignment: x = 1"
+        },
+        {
+            "q": "What's the correct naming convention for functions?",
+            "options": ["a) camelCase", "b) PascalCase", "c) snake_case", "d) UPPER_CASE"],
+            "answer": "c",
+            "explain": "Python uses snake_case for functions and variables"
+        },
+        {
+            "q": "How do you write an if-else in Python?",
+            "options": ["a) if {} else {}", "b) if: else:", "c) if () {} else {}", "d) IF THEN ELSE"],
+            "answer": "b",
+            "explain": "Python uses colons and indentation, no braces!"
+        },
+        {
+            "q": "What's the Python equivalent of JavaScript's &&?",
+            "options": ["a) &&", "b) and", "c) &", "d) AND"],
+            "answer": "b",
+            "explain": "Python uses 'and' as a keyword, not symbols"
+        },
+        {
+            "q": "How do you handle errors in Python?",
+            "options": ["a) try {} catch {}", "b) try: except:", "c) try/except", "d) try {} catch (e) {}"],
+            "answer": "b",
+            "explain": "Python uses try: except: with colons and indentation"
+        }
+    ]
+
+    score = 0
+
+    for i, q in enumerate(questions, 1):
+        print(f"Q{i}: {q['q']}")
+        for opt in q['options']:
+            print(f"   {opt}")
+
+        answer = input("\nYour answer: ").strip().lower()
+
+        if answer == q['answer']:
+            print(f"✅ Correct! {q['explain']}\n")
+            score += 1
+        else:
+            print(f"❌ The answer is {q['answer']}. {q['explain']}\n")
+
+    print(f"{'='*60}")
+    print(f"Score: {score}/{len(questions)}")
+
+    if score == len(questions):
+        print("🎉 Perfect! You're ready for FastAPI!")
+    elif score >= len(questions) * 0.6:
+        print("👍 Good! Review the lessons you missed.")
+    else:
+        print("📚 Keep learning! Go through the lessons again.")
+
+    print(f"{'='*60}\n")
+
+def main():
+    """Main entry point"""
+    while True:
+        choice = show_menu()
+
+        if choice == '1':
+            run_lesson(1)
+        elif choice == '2':
+            lesson = input("Enter lesson number (1-5): ").strip()
+            if lesson.isdigit():
+                run_lesson(int(lesson))
+            else:
+                print("❌ Please enter a number")
+        elif choice == '3':
+            show_progress()
+        elif choice == '4':
+            show_cheatsheet()
+        elif choice == '5':
+            run_quiz()
+        elif choice == '6':
+            print("\n👋 Happy learning! Good luck with FastAPI!\n")
+            break
+        else:
+            print("\n❌ Invalid choice. Please enter 1-6\n")
+
+if __name__ == "__main__":
+    main()

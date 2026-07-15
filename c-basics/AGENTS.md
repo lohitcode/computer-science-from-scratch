@@ -36,7 +36,7 @@ Interactive C learning environment for deep systems intuition. Learn by implemen
 ├── Makefile         # ← Build system (user runs: make test)
 ├── README.md        # ← Current lesson (history, mental model, guide)
 ├── PROGRESS.md      # ← Progress checklist
-├── CLAUDE.md        # ← This file (system documentation)
+├── AGENTS.md        # ← Codex repository instructions
 └── completed/       # ← Archive of passed code
     ├── arrays.c
     ├── linked-lists.c

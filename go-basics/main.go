@@ -18,8 +18,28 @@
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 func main() {
-	fmt.Println("TODO: complete Problem 16")
+	text := "Learning Go files!"
+	bytes := []byte(text)
+	filename := "notes.txt"
+	err := os.WriteFile(filename, bytes, 0644)
+
+	if err != nil {
+		fmt.Printf("File write error: %s", err)
+		return
+	}
+
+	data, err := os.ReadFile(filename)
+
+	if err != nil {
+		fmt.Printf("File read error: %s", err)
+		return
+	}
+
+	fmt.Println(string(data))
 }

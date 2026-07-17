@@ -1,45 +1,60 @@
 // =====================================================
-// PROBLEM 16: Files and I/O
+// PROBLEM 17: JSON Encoding and Decoding
 // =====================================================
-// YOUR TASK: Write text to a file, then read it back.
+// YOUR TASK: Convert a Go struct to JSON, then convert
+// that JSON back into a Go struct.
 //
-// 1. Store "Learning Go files!" in a byte slice.
-// 2. Write it to notes.txt with os.WriteFile.
-// 3. Handle the write error.
-// 4. Read notes.txt with os.ReadFile.
-// 5. Handle the read error.
-// 6. Convert the returned bytes to a string and print it.
+// 1. Create a Progress struct with Name and Completed.
+// 2. Give both fields JSON tags using lowercase names.
+// 3. Create: Progress{Name: "Lohit", Completed: 16}
+// 4. Encode it with json.Marshal and handle the error.
+// 5. Print the JSON string.
+// 6. Decode it into a new Progress value with
+//    json.Unmarshal and handle the error.
+// 7. Print the decoded fields.
 //
 // Expected output:
-//   Learning Go files!
+//   JSON: {"name":"Lohit","completed":16}
+//   Decoded: Lohit completed 16 lessons
 //
-// Read lessons/files-and-io.md before starting.
+// Read lessons/json.md before starting.
 // =====================================================
 
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"os"
 )
 
+type Progress struct {
+	Name      string `json:"name"`
+	Completed int    `json:"completed"`
+}
+
 func main() {
-	text := "Learning Go files!"
-	bytes := []byte(text)
-	filename := "notes.txt"
-	err := os.WriteFile(filename, bytes, 0644)
+	lohit := Progress{Name: "Lohit", Completed: 16}
+
+	data, err := json.Marshal(lohit)
 
 	if err != nil {
-		fmt.Printf("File write error: %s", err)
+		fmt.Println("Marshal error:", err)
 		return
 	}
 
-	data, err := os.ReadFile(filename)
+	fmt.Printf("JSON: %s\n", string(data))
 
-	if err != nil {
-		fmt.Printf("File read error: %s", err)
+	var unmarshaled Progress
+	unmarshalErr := json.Unmarshal(data, &unmarshaled)
+
+	if unmarshalErr != nil {
+		fmt.Println("Unmarshal error:", unmarshalErr)
 		return
 	}
 
-	fmt.Println(string(data))
+	fmt.Printf(
+		"Decoded: %s completed %d lessons\n",
+		unmarshaled.Name,
+		unmarshaled.Completed,
+	)
 }

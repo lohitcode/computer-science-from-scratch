@@ -1,60 +1,49 @@
 // =====================================================
-// PROBLEM 17: JSON Encoding and Decoding
+// PROBLEM 18: HTTP Servers and Handlers
 // =====================================================
-// YOUR TASK: Convert a Go struct to JSON, then convert
-// that JSON back into a Go struct.
+// YOUR TASK: Build a small HTTP server using net/http.
 //
-// 1. Create a Progress struct with Name and Completed.
-// 2. Give both fields JSON tags using lowercase names.
-// 3. Create: Progress{Name: "Lohit", Completed: 16}
-// 4. Encode it with json.Marshal and handle the error.
-// 5. Print the JSON string.
-// 6. Decode it into a new Progress value with
-//    json.Unmarshal and handle the error.
-// 7. Print the decoded fields.
+// 1. Create a helloHandler function with the standard
+//    http.HandlerFunc signature.
+// 2. Write "Hello from Go!" to the response.
+// 3. Register the handler at the /hello path.
+// 4. Print "Server listening on http://localhost:8080".
+// 5. Start the server on port 8080.
+// 6. Handle the error returned by ListenAndServe.
 //
-// Expected output:
-//   JSON: {"name":"Lohit","completed":16}
-//   Decoded: Lohit completed 16 lessons
+// Test it in another terminal with:
+//   curl http://localhost:8080/hello
 //
-// Read lessons/json.md before starting.
+// Expected curl output:
+//   Hello from Go!
+//
+// Read lessons/http-servers.md before starting.
 // =====================================================
 
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
 )
 
-type Progress struct {
-	Name      string `json:"name"`
-	Completed int    `json:"completed"`
+func helloHandler(w http.ResponseWriter, _ *http.Request) {
+	fmt.Print()
+	fmt.Fprint(w, "Hello from Go!")
 }
 
 func main() {
-	lohit := Progress{Name: "Lohit", Completed: 16}
+	http.HandleFunc("/hello", helloHandler)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+	fmt.Println("Server Started on port ", port)
 
-	data, err := json.Marshal(lohit)
-
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
-		fmt.Println("Marshal error:", err)
+		fmt.Println("server error: ", err)
 		return
 	}
-
-	fmt.Printf("JSON: %s\n", string(data))
-
-	var unmarshaled Progress
-	unmarshalErr := json.Unmarshal(data, &unmarshaled)
-
-	if unmarshalErr != nil {
-		fmt.Println("Unmarshal error:", unmarshalErr)
-		return
-	}
-
-	fmt.Printf(
-		"Decoded: %s completed %d lessons\n",
-		unmarshaled.Name,
-		unmarshaled.Completed,
-	)
 }

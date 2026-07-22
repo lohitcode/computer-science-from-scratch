@@ -16,6 +16,8 @@ main
 
 # Generated lesson files
 /go-basics/notes.txt
+/go-basics/.env
+/go-basics/tmp/
 
 # Python
 __pycache__/

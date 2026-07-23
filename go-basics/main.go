@@ -1,29 +1,23 @@
 // =====================================================
-// PROBLEM 19A: Context Values in HTTP Middleware
+// PROBLEM 19B: Context Timeout and Cancellation
 // =====================================================
-// YOUR TASK: Use middleware to add a request ID to an
-// HTTP request's context, then read it in a handler.
+// YOUR TASK: Stop slow work when its context expires.
 //
-// 1. Define a private contextKey type.
-// 2. Define requestIDKey using that type.
-// 3. Create requestIDMiddleware(next http.Handler).
-// 4. In the middleware, add "req-123" to r.Context()
-//    with context.WithValue.
-// 5. Attach the new context using r.WithContext(ctx).
-// 6. Call the next handler with next.ServeHTTP(w, r).
-// 7. In helloHandler, read and safely type-assert the
-//    request ID, then write it to the response.
-// 8. Wrap helloHandler with the middleware and serve it
-//    at /hello on port 8080.
+// 1. Create slowOperation(ctx context.Context) error.
+// 2. Inside it, select between:
+//      time.After(2 * time.Second)
+//      ctx.Done()
+// 3. Return nil if the work finishes first.
+// 4. Return ctx.Err() if cancellation happens first.
+// 5. In main, create a context with a 500 ms timeout.
+// 6. Defer its cancel function.
+// 7. Call slowOperation and print its returned error.
 //
-// Test it in another terminal with:
-//   curl http://localhost:8080/hello
+// Expected output after about 500 ms:
+//   Starting slow operation...
+//   Operation stopped: context deadline exceeded
 //
-// Expected response:
-//   Request ID: req-123
-//
-// Read lessons/context.md, especially Exercise 19A.
-// Exercise 19B will cover cancellation and timeouts.
+// Read Exercise 19B in lessons/context.md.
 // =====================================================
 
 package main
@@ -31,41 +25,24 @@ package main
 import (
 	"context"
 	"fmt"
-	"net/http"
+	"time"
 )
 
-func generateRequestID() string {
-	return "req-123"
-}
-
-type contextKey string
-
-const requestIDKey contextKey = "requestID"
-
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	requestID, ok := r.Context().Value(requestIDKey).(string)
-
-	if !ok {
-		http.Error(w, "request ID missing", http.StatusInternalServerError)
-		return
+func slowOperation(ctx context.Context) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-time.After(2 * time.Second):
+		return nil
 	}
-	fmt.Fprintln(w, "Request ID:", requestID)
-}
-
-func requestIDMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), requestIDKey, generateRequestID())
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
 }
 
 func main() {
-	handler := http.HandlerFunc(helloHandler)
-	wrapped := requestIDMiddleware(handler)
-	http.Handle("/hello", wrapped)
-	fmt.Println("Starting Server...")
-	err := http.ListenAndServe(":8080", nil)
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+	fmt.Println("Starting slow operation...")
+	err := slowOperation(ctx)
 	if err != nil {
-		fmt.Println("server error", err)
+		fmt.Println("Operation stopped:", err)
 	}
 }

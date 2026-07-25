@@ -1,6 +1,6 @@
 # Lesson 4: Package Boundaries and Configuration
 
-**Course progress:** 3 of 12 lessons complete
+**Status:** Complete
 
 The current server works. That is exactly when refactoring becomes useful:
 behavior is known, so you can move responsibilities and verify that nothing
@@ -128,7 +128,7 @@ Are required settings present and valid?
 For now, it owns only:
 
 ```text
-HTTP address
+HTTP port
 ```
 
 Later, the same configuration value can contain the database path and
@@ -155,23 +155,23 @@ For now, it owns:
 GET /health
 ```
 
-It should construct and return an `http.Handler`. Returning the interface keeps
-the caller concerned with behavior—“can handle an HTTP request”—instead of the
-router's concrete implementation.
+It should construct and return a `*http.ServeMux`. Returning the concrete mux
+allows the composition root to register more feature routes later before
+passing it to the server as an `http.Handler`.
 
 ### `httpserver/server.go` owns server policy
 
 The server file answers:
 
 ```text
-Which address is used?
+Which port is used?
 Which handler receives requests?
 What timeout policy protects the server?
 ```
 
 It should create an `http.Server` using:
 
-- the address supplied by the caller;
+- the port supplied by the caller;
 - the router supplied by the caller;
 - the timeout values learned in Lesson 3.
 
@@ -238,7 +238,7 @@ of becoming mutually entangled.
 
 ## Configuration is input
 
-The listening address is currently hardcoded:
+The listening port is currently hardcoded:
 
 ```text
 :8080
@@ -251,9 +251,9 @@ Environment configuration allows the same binary to run in different
 environments:
 
 ```text
-local development  HTTP_ADDRESS=:8080
-integration test   HTTP_ADDRESS=:18080
-deployment         HTTP_ADDRESS=:8000
+local development  PORT=8080
+integration test   PORT=18080
+deployment         PORT=8000
 ```
 
 The program stays the same; its input changes.
@@ -271,12 +271,9 @@ LookupEnv
     returns the value plus whether the variable exists
 ```
 
-For this lesson, an empty or missing `HTTP_ADDRESS` should both use the
-development default:
-
-```text
-:8080
-```
+For this lesson, an empty or missing `PORT` is a startup error. Requiring the
+deployment input makes configuration mistakes visible immediately instead of
+silently choosing a different port.
 
 For a future secret such as a signing key, “missing” and “present but empty”
 may both be fatal configuration errors rather than reasons to use a default.
@@ -315,14 +312,15 @@ Your config package needs a small exported structure conceptually shaped like:
 
 ```text
 Config
-└── HTTPAddress string
+└── Port string
 ```
 
 Its loader should:
 
-1. look for `HTTP_ADDRESS`;
-2. use `:8080` when missing or empty;
-3. return the resulting configuration.
+1. look for `PORT`;
+2. reject a missing, empty, non-numeric, or out-of-range value;
+3. accept ports from `1` through `65535`;
+4. return the validated configuration.
 
 Do not add a `.env` parsing library. The program reads the process environment.
 A shell, Air, Docker, or deployment system may populate it later.
@@ -356,10 +354,10 @@ Refactor with these responsibilities:
 
 ### Configuration
 
-- Export a configuration type containing `HTTPAddress`.
+- Export a configuration type containing `Port`.
 - Export a loader.
-- Read `HTTP_ADDRESS`.
-- Default to `:8080` when it is absent or empty.
+- Read `PORT`.
+- Fail when it is absent, empty, non-numeric, or outside `1` through `65535`.
 
 ### Router
 
@@ -368,12 +366,12 @@ Refactor with these responsibilities:
 - Register `GET /health`.
 - Preserve `Content-Type: application/json`.
 - Preserve `{"status":"ok"}`.
-- Return the router as an `http.Handler`.
+- Return the constructed `*http.ServeMux`.
 
 ### Server
 
 - Export a server constructor.
-- Accept the address and handler as arguments.
+- Accept the port and handler as arguments.
 - Return a configured `*http.Server`.
 - Preserve all four Lesson 3 timeout values.
 
@@ -381,23 +379,33 @@ Refactor with these responsibilities:
 
 - Load configuration once.
 - Construct the router.
-- Construct the server with the address and router.
-- Print the actual configured address before listening.
+- Construct the server with the port and router.
+- Print the actual configured port before listening.
 - Start the server.
 - Report the returned error.
 
 Do not add SQLite, SQLC, graceful shutdown, third-party packages, or generic
 `utils` packages.
 
-## Verify the default configuration
+## Verify missing configuration fails
+
+Run without `PORT`:
+
+```bash
+env -u PORT go run ./cmd/api
+```
+
+The process should report the configuration error and must not start listening.
+
+## Verify configured startup
 
 Run:
 
 ```bash
-go run ./cmd/api
+PORT=8080 go run ./cmd/api
 ```
 
-Expected address:
+Expected port:
 
 ```text
 :8080
@@ -414,7 +422,7 @@ curl -i http://localhost:8080/health
 Stop the first server, then run:
 
 ```bash
-HTTP_ADDRESS=:9090 go run ./cmd/api
+PORT=9090 go run ./cmd/api
 ```
 
 Test:
@@ -460,9 +468,9 @@ go test ./...
 1. Why is `cmd` a convention while `internal` is enforced?
 2. What package owns the `GET /health` route?
 3. What package owns timeout policy?
-4. Why should the HTTP server package not read `HTTP_ADDRESS` directly?
+4. Why should the HTTP server package not read `PORT` directly?
 5. What is a composition root?
-6. What does returning `http.Handler` communicate?
+6. Why does `*http.ServeMux` satisfy the `http.Handler` interface?
 7. Why does Go reject import cycles?
 8. What is the difference between configuration and application behavior?
 9. Why should configuration be read once?
@@ -474,7 +482,7 @@ Show:
 
 1. the new three-file package structure;
 2. `cmd/api/main.go`;
-3. the server running on the default address;
+3. the missing-`PORT` startup failure;
 4. the server running on `:9090`;
 5. `go list ./...`;
 6. formatter, vet, and test output.

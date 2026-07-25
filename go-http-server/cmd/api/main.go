@@ -1,39 +1,29 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"net/http"
-	"time"
+
+	"github.com/lohitcode/computer-science-from-scratch/go-http-server/internal/config"
+	"github.com/lohitcode/computer-science-from-scratch/go-http-server/internal/httpserver"
 )
 
 func main() {
-	fmt.Println("Starting Server...")
-	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
+	cfg, configErr := config.Load()
 
-		response := map[string]string{
-			"status": "ok",
-		}
-
-		json.NewEncoder(w).Encode(response)
-	})
-
-	server := &http.Server{
-		Addr:              ":8080",
-		Handler:           mux,
-		ReadHeaderTimeout: 5 * time.Second,
-		ReadTimeout:       10 * time.Second,
-		WriteTimeout:      10 * time.Second,
-		IdleTimeout:       60 * time.Second,
+	if configErr != nil {
+		fmt.Println(configErr)
+		return
 	}
 
-	err := server.ListenAndServe()
+	router := httpserver.NewRouter()
 
-	if err != nil {
-		fmt.Println("Server Error: ", err)
+	server := httpserver.NewServer(cfg.Port, router)
+	fmt.Println("Server listening on http://localhost:", cfg.Port)
+	serverError := server.ListenAndServe()
+
+	if serverError != nil {
+		fmt.Println(serverError)
 	}
 
 }

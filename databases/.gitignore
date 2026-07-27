@@ -1,4 +1,1 @@
-practice/*.db
-practice/*.db-*
-practice/*.sqlite
-practice/*.sqlite-*
+.env

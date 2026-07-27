@@ -1,169 +1,65 @@
-# Checkpoint 01: SQL File, CLI, and First Table
+# Checkpoint 01: SQL File, `psql`, and First Table
+
+Status: **Complete**
 
 ## Goal
 
-In this checkpoint, do only three things:
+Write SQL in `main.sql`, execute it through PostgreSQL's `psql` client, and
+inspect one table.
 
-1. write SQL in `databases/main.sql`;
-2. execute that file with SQLite;
-3. create and inspect one table.
-
-Do not insert data yet. That is checkpoint 02.
-
-## Why Use a Table?
-
-A text file could contain:
+## Mental Model
 
 ```text
-1,Ragi Malt
-2,Fruit Juice
+main.sql       SQL source tracked by Git
+PostgreSQL     server executing SQL
+psql           client sending SQL to the server
+Docker volume  persistent table and row data
 ```
 
-But the file does not explain what each position means or which values are
-required.
+## PostgreSQL Table Shape
 
-A relational database adds a **schema**: rules describing the shape of the
-data.
-
-```text
-table    a named collection, such as products
-column   one property, such as name
-row      one stored product
-schema   the structure and rules of the table
-```
-
-Today you will create the structure. Rows come next.
-
-## SQL Source Versus Database State
-
-You will have two different files:
-
-```text
-main.sql                 instructions written by you
-practice/sql-course.db   database state created by SQLite
-```
-
-`main.sql` is readable source code and belongs in Git.
-
-`sql-course.db` stores the current tables and rows. It is generated runtime
-state and is ignored by Git.
-
-The mental model is:
-
-```text
-main.sql tells SQLite what to do
-SQLite changes sql-course.db
-```
-
-## The `CREATE TABLE` Shape
-
-Here is a complete example for a different table:
+Example:
 
 ```sql
 DROP TABLE IF EXISTS books;
 
 CREATE TABLE books (
-    id INTEGER PRIMARY KEY,
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     title TEXT NOT NULL
 );
 ```
 
-Read it piece by piece:
+`GENERATED ALWAYS AS IDENTITY` makes PostgreSQL generate an ID when an insert
+omits that column.
 
-```text
-DROP TABLE IF EXISTS books
-    remove the old practice table so the file can be run again
+## Completed Contract
 
-CREATE TABLE books
-    create a table named books
+`products` was created with:
 
-id INTEGER PRIMARY KEY
-    create an integer column that uniquely identifies each row
-
-title TEXT NOT NULL
-    create a text column that cannot be missing
-```
-
-Commas separate column definitions. The semicolon ends an SQL statement.
-
-The `DROP TABLE` line is safe for this disposable practice database. Real
-production schema changes will later use migrations.
-
-## Your Exercise
-
-Create `databases/main.sql`.
-
-In that file, define a table named `products` with exactly these columns:
-
-| Column | Required definition |
+| Column | Definition |
 |---|---|
-| `id` | Integer primary key |
+| `id` | Generated integer primary key |
 | `name` | Required text |
 
-Also make the script repeatable by dropping `products` first if it already
-exists.
+The disposable exercise drops and recreates `products` so it is repeatable.
+Production changes will later use migrations.
 
-Do not copy the finished `books` statement unchanged. Translate the schema
-requirements into your own `products` statement.
-
-## Execute the File
-
-From the repository root:
+## Commands
 
 ```bash
-cd databases
-mkdir -p practice
-sqlite3 practice/sql-course.db
+docker compose up -d
+docker compose exec postgres \
+  psql --username course_user --dbname sql_course
 ```
 
-You are now inside the SQLite CLI. Run:
+Inside `psql`:
 
 ```text
-.read main.sql
-.tables
-.schema products
+\i main.sql
+\dt
+\d products
+\q
 ```
 
-Important distinction:
-
-```text
-.read main.sql    CLI command: execute an SQL file
-.tables           CLI command: list tables
-.schema products  CLI command: display the table definition
-```
-
-Dot commands belong to the SQLite CLI, so they do not use semicolons.
-
-Exit with:
-
-```text
-.quit
-```
-
-## Expected Result
-
-- `.read main.sql` finishes without an error.
-- `.tables` includes `products`.
-- `.schema products` displays your two columns and their rules.
-- Running `.read main.sql` a second time also succeeds.
-
-## Check Your Understanding
-
-Before saying `done`, make sure you can answer:
-
-1. What is the difference between `main.sql` and `sql-course.db`?
-2. What is a schema?
-3. What do table, column, and row mean?
-4. Why does `main.sql` begin by dropping the practice table?
-5. What is the difference between an SQL statement and a SQLite dot command?
-
-## Stop Here
-
-Send me:
-
-1. your `main.sql`;
-2. the output of `.tables`;
-3. the output of `.schema products`.
-
-Ask immediately if anything is unclear. Once this checkpoint works, I will
-review it and create checkpoint 02 for inserting and selecting rows.
+`\i`, `\dt`, `\d`, and `\q` are `psql` meta-commands. SQL statements use
+semicolons; these commands do not.

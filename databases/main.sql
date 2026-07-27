@@ -1,11 +1,13 @@
+SET client_min_messages TO WARNING;
+
 DROP TABLE IF EXISTS products;
 
 CREATE TABLE products (
-    id INTEGER PRIMARY KEY,
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     price_paise INTEGER NOT NULL CHECK (price_paise >= 0),
-    available INTEGER NOT NULL DEFAULT 1 CHECK (available IN (0,1))
-    );
+    available BOOLEAN NOT NULL DEFAULT TRUE
+);
 
 INSERT INTO products (name, price_paise)
 VALUES
@@ -13,8 +15,26 @@ VALUES
 
 INSERT INTO products (name, price_paise, available)
 VALUES
-    ('Fruit Juice', 8000, 1),
-    ('Sprout Salad', 6500, 0);
+    ('Fruit Juice', 8000, TRUE),
+    ('Sprout Salad', 6500, FALSE);
 
 
-SELECT * FROM products;
+SELECT name
+FROM products
+WHERE available = TRUE;
+
+SELECT name
+FROM products
+WHERE price_paise >= 6000;
+
+SELECT name
+FROM products
+WHERE available = TRUE AND price_paise < 6000;
+
+SELECT name
+FROM products
+WHERE name = 'Fruit Juice' OR name = 'Sprout Salad';
+
+SELECT name
+FROM products
+WHERE NOT (available = TRUE);

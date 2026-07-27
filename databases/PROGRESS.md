@@ -1,4 +1,4 @@
-# Raw SQL Progress
+# PostgreSQL Progress
 
 Timezone: **Asia/Kolkata (IST)**
 
@@ -19,8 +19,8 @@ kept in the history but excluded from the typical-duration calculation.
 | 01 | SQL file, CLI, and first table | Complete | 2026-07-26 06:06 IST | 2026-07-27 02:46 IST | 20h 40m* |
 | 02 | Insert and read rows | Complete | 2026-07-27 02:46 IST | 2026-07-27 03:18 IST | 32m |
 | 03 | Protect valid data | Complete | 2026-07-27 03:19 IST | 2026-07-27 03:39 IST | 20m |
-| 04 | Filter rows | In progress | 2026-07-27 03:39 IST | — | — |
-| 05 | Sort and limit results | Not started | — | — | — |
+| 04 | Filter rows | Complete | 2026-07-27 03:39 IST | 2026-07-27 03:51 IST | 12m |
+| 05 | Sort and limit results | In progress | 2026-07-27 03:51 IST | — | — |
 | 06 | Missing values | Not started | — | — | — |
 | 07 | Change and remove rows safely | Not started | — | — | — |
 | 08 | Summarize data | Not started | — | — | — |
@@ -40,11 +40,18 @@ typical-duration calculation.
 
 ## Current Estimate
 
-- Completed: **3 of 18**
-- Remaining: **15**
-- Current estimate: **16–23 study hours**
-- Confidence: **Low**, because the completed same-session checkpoints cover
-  only introductory material.
+- Completed: **4 of 18**
+- Remaining: **14**
+- Current estimate: **14–21 study hours**
+- Confidence: **Low to medium**, because the completed same-session
+  checkpoints are still introductory and later relational topics will take
+  longer.
 
 The estimate will be recalculated after each completed checkpoint. It should
 become meaningfully more accurate after checkpoints 04–06.
+
+## Break Log
+
+| Checkpoint | Started | Resumed | Duration |
+|---|---|---|---|
+| 05 | 2026-07-27 03:52 IST | 2026-07-27 06:45 IST | 2h 53m |

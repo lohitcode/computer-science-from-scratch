@@ -1,40 +1,48 @@
 SET client_min_messages TO WARNING;
 
 DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS categories;
+
+CREATE TABLE categories (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE
+);
 
 CREATE TABLE products (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     price_paise INTEGER NOT NULL CHECK (price_paise >= 0),
-    available BOOLEAN NOT NULL DEFAULT TRUE
+    category_id INTEGER NOT NULL REFERENCES categories(id)
 );
 
-INSERT INTO products (name, price_paise)
+INSERT INTO categories (name)
 VALUES
-    ('Raagi Malt', 5000);
+    ('Drinks'),
+    ('Foods'),
+    ('Desserts');
 
-INSERT INTO products (name, price_paise, available)
+INSERT INTO products (name, price_paise, category_id)
 VALUES
-    ('Fruit Juice', 8000, TRUE),
-    ('Sprout Salad', 6500, FALSE);
+    ('Raagi Malt', 5000, 1),
+    ('Fruit Juice', 8000, 1),
+    ('Sprout Salad', 6500, 2);
 
 
-SELECT name
-FROM products
-WHERE available = TRUE;
+SELECT
+    c.name AS category_name,
+    p.name AS product_name
+FROM categories as c
+LEFT JOIN products AS p
+    ON p.category_id = c.id
+ORDER BY c.id, p.id;
 
-SELECT name
-FROM products
-WHERE price_paise >= 6000;
 
-SELECT name
-FROM products
-WHERE available = TRUE AND price_paise < 6000;
-
-SELECT name
-FROM products
-WHERE name = 'Fruit Juice' OR name = 'Sprout Salad';
-
-SELECT name
-FROM products
-WHERE NOT (available = TRUE);
+SELECT
+    c.name AS category_name,
+    COUNT(p.id) AS product_count,
+    COALESCE(SUM(p.price_paise),0) AS total_price
+FROM categories AS c
+LEFT JOIN products AS p
+    ON p.category_id = c.id
+GROUP BY c.id, c.name
+ORDER BY c.id;

@@ -114,7 +114,7 @@ criteria, verification commands, and a stop point.
 | 02 | Insert and read rows | Insert rows and select columns |
 | 03 | Protect valid data | Add constraints and reject invalid data |
 | 04 | Filter rows | Use comparisons, `AND`, `OR`, and `NOT` |
-| 05 | Sort and limit results | Order results and create two pages |
+| 05 | Sort and limit results | Use `ORDER BY`, `ASC`, `DESC`, `LIMIT`, and `OFFSET` |
 | 06 | Missing values | Store and query `NULL` |
 | 07 | Change and remove rows safely | Use targeted `UPDATE` and `DELETE` |
 | 08 | Summarize data | Use aggregate functions |
@@ -132,9 +132,30 @@ criteria, verification commands, and a stop point.
 ## Current Lesson
 
 Open
-[`lessons/05-sort-and-limit.md`](lessons/05-sort-and-limit.md).
+[`lessons/12-left-join.md`](lessons/12-left-join.md).
 
-Completed: checkpoints 01–04. Stop after checkpoint 05 until it is reviewed.
+Completed: checkpoints 01–12. Stop before checkpoint 13 until its lesson is
+prepared.
+
+Checkpoint 12 teaches how `LEFT JOIN` preserves unmatched parent rows, why
+their child columns become `NULL`, and how to count matched children correctly.
+
+The exercise must print:
+
+```text
+category_name|product_name
+Drinks|Raagi Malt
+Drinks|Fruit Juice
+Foods|Sprout Salad
+Desserts|[NULL]
+category_name|product_count|total_price
+Drinks|2|13000
+Foods|1|6500
+Desserts|0|0
+```
+
+The summary must use `COUNT(p.id)` rather than `COUNT(*)`, and `COALESCE` must
+turn the missing sum into zero.
 
 ## After Raw PostgreSQL
 
@@ -157,3 +178,10 @@ build user and authentication APIs
 - [`psql`](https://www.postgresql.org/docs/current/app-psql.html)
 - [Identity columns](https://www.postgresql.org/docs/current/ddl-identity-columns.html)
 - [Boolean type](https://www.postgresql.org/docs/current/datatype-boolean.html)
+- [`NULL` comparison functions](https://www.postgresql.org/docs/current/functions-comparison.html)
+- [`UPDATE`](https://www.postgresql.org/docs/current/sql-update.html)
+- [`DELETE`](https://www.postgresql.org/docs/current/sql-delete.html)
+- [`RETURNING`](https://www.postgresql.org/docs/current/dml-returning.html)
+- [Aggregate functions](https://www.postgresql.org/docs/current/functions-aggregate.html)
+- [Foreign keys](https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-FK)
+- [Joined tables](https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-JOIN)

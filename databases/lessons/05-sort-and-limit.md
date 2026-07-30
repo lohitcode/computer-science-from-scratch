@@ -1,16 +1,207 @@
 # Checkpoint 05: Sort and Limit Results
 
-Status: **In progress**
+Status: **Complete**
 
 ## Goal
 
-Use `ORDER BY` to guarantee row order, then use `LIMIT` and `OFFSET` for two
-predictable pages.
+Learn how to:
 
-Do not change the schema, rows, or existing constraints. Do not filter, update,
-or delete data.
+- guarantee the order of query results with `ORDER BY`;
+- sort from low to high with `ASC`;
+- sort from high to low with `DESC`;
+- break ties with more than one ordering column;
+- return only part of a result with `LIMIT`;
+- skip rows with `OFFSET`.
 
-## Starting State
+The examples below use a `books` table. Your exercise still uses the
+`products` table in `main.sql`.
+
+## Example Data
+
+Imagine that `books` contains these rows:
+
+| `id` | `title` | `price_paise` | `available` |
+|---:|---|---:|---|
+| 1 | Go Basics | 50000 | `TRUE` |
+| 2 | SQL Basics | 30000 | `TRUE` |
+| 3 | Networks | 50000 | `FALSE` |
+| 4 | Linux | 70000 | `TRUE` |
+
+## 1. Why `ORDER BY` Is Necessary
+
+This query does **not** guarantee which row PostgreSQL returns first:
+
+```sql
+SELECT title, price_paise
+FROM books;
+```
+
+A table has no promised display order. Rows may appear in insertion order
+today and a different order after an index, update, or query-plan change.
+
+Whenever order matters, state it explicitly with `ORDER BY`.
+
+## 2. Sort from Lowest to Highest with `ASC`
+
+```sql
+SELECT title, price_paise
+FROM books
+ORDER BY price_paise ASC, id ASC;
+```
+
+Output:
+
+```text
+title|price_paise
+SQL Basics|30000
+Go Basics|50000
+Networks|50000
+Linux|70000
+```
+
+`ASC` means **ascending**:
+
+- numbers: smallest to largest;
+- text: alphabetical order according to the database collation;
+- dates and times: oldest to newest.
+
+`ASC` is PostgreSQL's default, but writing it explicitly makes the intention
+clear while learning.
+
+Why does the example also use `id ASC`? `Go Basics` and `Networks` have the
+same price. PostgreSQL first sorts by `price_paise`; for rows tied on price, it
+uses `id` as the tie-breaker.
+
+## 3. Sort from Highest to Lowest with `DESC`
+
+```sql
+SELECT title, price_paise
+FROM books
+ORDER BY price_paise DESC, id ASC;
+```
+
+Output:
+
+```text
+title|price_paise
+Linux|70000
+Go Basics|50000
+Networks|50000
+SQL Basics|30000
+```
+
+`DESC` means **descending**:
+
+- numbers: largest to smallest;
+- text: reverse alphabetical order;
+- dates and times: newest to oldest.
+
+Notice that `DESC` applies only to `price_paise`. The tied rows still use
+`id ASC`.
+
+## 4. Sort by More Than One Column
+
+Suppose available books must appear first. Within each availability group,
+prices should go from lowest to highest:
+
+```sql
+SELECT title, available, price_paise
+FROM books
+ORDER BY available DESC, price_paise ASC, id ASC;
+```
+
+Output:
+
+```text
+title|available|price_paise
+SQL Basics|t|30000
+Go Basics|t|50000
+Linux|t|70000
+Networks|f|50000
+```
+
+Read the ordering from left to right:
+
+1. `available DESC` creates the `TRUE` group followed by the `FALSE` group.
+2. `price_paise ASC` sorts rows inside each group.
+3. `id ASC` gives equal-price rows a stable tie-breaker.
+
+PostgreSQL displays Boolean `TRUE` as `t` and `FALSE` as `f` in this output
+format.
+
+## 5. Return Only Some Rows with `LIMIT`
+
+`LIMIT` sets the maximum number of rows returned:
+
+```sql
+SELECT id, title
+FROM books
+ORDER BY id ASC
+LIMIT 2;
+```
+
+Output:
+
+```text
+id|title
+1|Go Basics
+2|SQL Basics
+```
+
+The complete ordered result has four rows, but `LIMIT 2` returns only its first
+two rows.
+
+Always combine pagination with `ORDER BY`. Without an order, “the first two
+rows” has no stable meaning.
+
+## 6. Skip Rows with `OFFSET`
+
+`OFFSET` tells PostgreSQL how many rows of the ordered result to skip:
+
+```sql
+SELECT id, title
+FROM books
+ORDER BY id ASC
+LIMIT 2
+OFFSET 2;
+```
+
+Output:
+
+```text
+id|title
+3|Networks
+4|Linux
+```
+
+PostgreSQL conceptually performs these steps:
+
+1. order all matching rows by `id`;
+2. skip the first two rows;
+3. return at most two rows.
+
+For page-number pagination:
+
+```text
+offset = (page number - 1) × page size
+```
+
+With a page size of `2`:
+
+| Page | `LIMIT` | `OFFSET` | Rows selected |
+|---:|---:|---:|---|
+| 1 | 2 | 0 | 1–2 |
+| 2 | 2 | 2 | 3–4 |
+| 3 | 2 | 4 | 5–6 |
+
+`OFFSET 0` can be omitted, so page 1 normally uses only `LIMIT 2`.
+
+## Your Exercise
+
+Do not change the schema, inserted rows, or constraints in `main.sql`. Remove
+the old checkpoint 04 queries and write exactly five new queries.
+
+Starting rows:
 
 | `id` | `name` | `price_paise` | `available` |
 |---:|---|---:|---|
@@ -18,23 +209,17 @@ or delete data.
 | 2 | Fruit Juice | 8000 | `TRUE` |
 | 3 | Sprout Salad | 6500 | `FALSE` |
 
-Keep the schema and inserts in `main.sql`. Replace the checkpoint 04 queries
-with the five queries below.
+Write:
 
-## Required Queries
+1. `name` and `price_paise`, ordered from lowest price to highest. Explicitly
+   use `ASC`.
+2. `name` and `price_paise`, ordered from highest price to lowest. Use `DESC`.
+3. `name`, `available`, and `price_paise`, with available products first and
+   prices low to high inside each group.
+4. Page 1: `id` and `name`, ordered by `id`, with a page size of two.
+5. Page 2: the same columns, order, and page size, skipping page 1.
 
-1. Select `name` and `price_paise`, from lowest price to highest.
-2. Select `name` and `price_paise`, from highest price to lowest.
-3. Select `name`, `available`, and `price_paise`. Put available products first,
-   then order each availability group from lowest price to highest.
-4. Select `id` and `name` for page 1: order by `id` and return two rows.
-5. Select `id` and `name` for page 2: use the same order and page size, skip
-   page 1, and return the next two rows.
-
-Use `ASC` in query 1, `DESC` in query 2, two ordering columns in query 3,
-`LIMIT` in queries 4–5, and `OFFSET` in query 5.
-
-## Expected Output
+## Expected Exercise Output
 
 ```text
 name|price_paise
@@ -56,28 +241,8 @@ id|name
 3|Sprout Salad
 ```
 
-Page 2 contains one row because the table has three rows and the page size is
-two.
-
-## Mental Model
-
-Without `ORDER BY`, PostgreSQL does not promise result order.
-
-```sql
-ORDER BY in_stock DESC, page_count ASC
-```
-
-PostgreSQL orders by the first expression. Rows tied on that expression are
-ordered by the second expression.
-
-```sql
-ORDER BY id ASC
-LIMIT 10
-OFFSET 20
-```
-
-This skips 20 rows and returns at most 10. Pagination needs a deterministic
-order.
+Page 2 contains only one row because the table has three rows and the page size
+is two.
 
 ## Run and Verify
 
@@ -102,13 +267,13 @@ Inside `psql`:
 
 ## Acceptance Criteria
 
-- Exactly five queries appear in the required order.
+- Exactly five exercise queries appear in the required order.
 - Every query selects only the requested columns.
 - Queries 1 and 2 explicitly use `ASC` and `DESC`.
-- Query 3 orders by `available` and `price_paise`.
+- Query 3 orders by both `available` and `price_paise`.
 - Queries 4 and 5 use the same order and page size.
 - Query 5 uses `OFFSET`.
-- Output matches the transcript on two runs.
+- Two consecutive runs produce the expected output.
 
 ## Stop Here
 

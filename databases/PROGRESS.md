@@ -20,14 +20,14 @@ kept in the history but excluded from the typical-duration calculation.
 | 02 | Insert and read rows | Complete | 2026-07-27 02:46 IST | 2026-07-27 03:18 IST | 32m |
 | 03 | Protect valid data | Complete | 2026-07-27 03:19 IST | 2026-07-27 03:39 IST | 20m |
 | 04 | Filter rows | Complete | 2026-07-27 03:39 IST | 2026-07-27 03:51 IST | 12m |
-| 05 | Sort and limit results | In progress | 2026-07-27 03:51 IST | — | — |
-| 06 | Missing values | Not started | — | — | — |
-| 07 | Change and remove rows safely | Not started | — | — | — |
-| 08 | Summarize data | Not started | — | — | — |
-| 09 | Summarize groups | Not started | — | — | — |
-| 10 | Model relationships | Not started | — | — | — |
-| 11 | Combine matching rows | Not started | — | — | — |
-| 12 | Preserve unmatched rows | Not started | — | — | — |
+| 05 | Sort and limit results | Complete | 2026-07-27 23:19 IST | 2026-07-27 23:36 IST | 17m |
+| 06 | Missing values | Complete | 2026-07-27 23:38 IST | 2026-07-27 23:50 IST | 12m |
+| 07 | Change and remove rows safely | Complete | 2026-07-28 04:53 IST | 2026-07-28 05:10 IST | 17m |
+| 08 | Summarize data | Complete | 2026-07-28 11:11 IST | 2026-07-28 11:23 IST | 12m |
+| 09 | Summarize groups | Complete | 2026-07-28 11:26 IST | 2026-07-28 11:44 IST | 18m |
+| 10 | Model relationships | Complete | 2026-07-30 13:50 IST | 2026-07-30 14:16 IST | 26m |
+| 11 | Combine matching rows | Complete | 2026-07-30 21:55 IST | 2026-07-30 22:12 IST | 17m |
+| 12 | Preserve unmatched rows | Complete | 2026-07-30 22:13 IST | 2026-07-30 22:23 IST | 10m |
 | 13 | Design relational schemas | Not started | — | — | — |
 | 14 | Make changes atomic | Not started | — | — | — |
 | 15 | Make reads faster | Not started | — | — | — |
@@ -40,18 +40,12 @@ typical-duration calculation.
 
 ## Current Estimate
 
-- Completed: **4 of 18**
-- Remaining: **14**
-- Current estimate: **14–21 study hours**
+- Completed: **12 of 18**
+- Remaining: **6**
+- Current estimate: **6–13 study hours**
 - Confidence: **Low to medium**, because the completed same-session
   checkpoints are still introductory and later relational topics will take
   longer.
 
 The estimate will be recalculated after each completed checkpoint. It should
 become meaningfully more accurate after checkpoints 04–06.
-
-## Break Log
-
-| Checkpoint | Started | Resumed | Duration |
-|---|---|---|---|
-| 05 | 2026-07-27 03:52 IST | 2026-07-27 06:45 IST | 2h 53m |

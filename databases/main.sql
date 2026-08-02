@@ -1,48 +1,69 @@
 SET client_min_messages TO WARNING;
 
-DROP TABLE IF EXISTS products;
-DROP TABLE IF EXISTS categories;
 
-CREATE TABLE categories (
-    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE
-);
+DROP TABLE IF EXISTS order_items;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS customers;
+DROP TABLE IF EXISTS products;
+
 
 CREATE TABLE products (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
-    price_paise INTEGER NOT NULL CHECK (price_paise >= 0),
-    category_id INTEGER NOT NULL REFERENCES categories(id)
+    price_paise INTEGER NOT NULL CHECK (price_paise >= 0)
 );
 
-INSERT INTO categories (name)
-VALUES
-    ('Drinks'),
-    ('Foods'),
-    ('Desserts');
+CREATE TABLE customers (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE
+);
 
-INSERT INTO products (name, price_paise, category_id)
-VALUES
-    ('Raagi Malt', 5000, 1),
-    ('Fruit Juice', 8000, 1),
-    ('Sprout Salad', 6500, 2);
+CREATE TABLE orders (
+ id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+ customer_id INTEGER NOT NULL REFERENCES customers(id)
+);
 
+CREATE TABLE order_items (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    order_id INTEGER NOT NULL REFERENCES orders(id),
+    product_id INTEGER NOT NULL REFERENCES products(id),
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    unit_price_paise INTEGER NOT NULL CHECK (unit_price_paise >= 0),
+
+    CONSTRAINT unique_order_product UNIQUE (order_id, product_id)
+);
+
+INSERT INTO products (name, price_paise)
+VALUES
+    ('Raagi Malt', 5000),
+    ('Sprout Salad', 6500),
+    ('Fruit Juice', 8000);
+
+INSERT INTO customers (name, email)
+VALUES
+    ('Asha', 'asha@example.com'),
+    ('Ravi', 'ravi@example.com');
+
+INSERT INTO orders (customer_id)
+VALUES
+    (1),
+    (2);
+
+INSERT INTO order_items (order_id, product_id, quantity, unit_price_paise)
+VALUES
+    (1, 1, 2, 5000),
+    (1, 2, 1, 6500),
+    (2, 3, 3, 8000);
 
 SELECT
-    c.name AS category_name,
-    p.name AS product_name
-FROM categories as c
-LEFT JOIN products AS p
-    ON p.category_id = c.id
-ORDER BY c.id, p.id;
-
-
-SELECT
-    c.name AS category_name,
-    COUNT(p.id) AS product_count,
-    COALESCE(SUM(p.price_paise),0) AS total_price
-FROM categories AS c
-LEFT JOIN products AS p
-    ON p.category_id = c.id
-GROUP BY c.id, c.name
-ORDER BY c.id;
+    oi.order_id,
+    c.name AS customer_name,
+    p.name AS product_name,
+    oi.unit_price_paise AS price_paise,
+    oi.quantity
+FROM orders o
+JOIN customers c ON o.customer_id =  c.id
+JOIN order_items oi ON o.id = oi.order_id
+JOIN products p ON oi.product_id = p.id
+ORDER BY o.id, p.id;

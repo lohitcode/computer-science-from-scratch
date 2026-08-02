@@ -132,30 +132,23 @@ criteria, verification commands, and a stop point.
 ## Current Lesson
 
 Open
-[`lessons/12-left-join.md`](lessons/12-left-join.md).
+[`lessons/13-normalize-a-schema.md`](lessons/13-normalize-a-schema.md).
 
-Completed: checkpoints 01–12. Stop before checkpoint 13 until its lesson is
+Completed: checkpoints 01–13. Stop before checkpoint 14 until its lesson is
 prepared.
 
-Checkpoint 12 teaches how `LEFT JOIN` preserves unmatched parent rows, why
-their child columns become `NULL`, and how to count matched children correctly.
+Checkpoint 13 teaches how normalization gives each fact one authoritative
+home and prevents update, insert, and delete anomalies.
 
-The exercise must print:
+The exercise designs customers, products, orders, and order items, then
+reconstructs this report:
 
 ```text
-category_name|product_name
-Drinks|Raagi Malt
-Drinks|Fruit Juice
-Foods|Sprout Salad
-Desserts|[NULL]
-category_name|product_count|total_price
-Drinks|2|13000
-Foods|1|6500
-Desserts|0|0
+order_id|customer_name|product_name|price_paise|quantity
+1|Asha|Raagi Malt|5000|2
+1|Asha|Sprout Salad|6500|1
+2|Ravi|Fruit Juice|8000|3
 ```
-
-The summary must use `COUNT(p.id)` rather than `COUNT(*)`, and `COALESCE` must
-turn the missing sum into zero.
 
 ## After Raw PostgreSQL
 

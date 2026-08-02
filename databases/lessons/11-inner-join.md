@@ -95,6 +95,29 @@ The equality usually connects:
 parent primary key = child foreign key
 ```
 
+### `JOIN` Means `INNER JOIN`
+
+In PostgreSQL, a bare `JOIN` is shorthand for `INNER JOIN`. These two queries
+have exactly the same meaning:
+
+```sql
+FROM books AS b
+INNER JOIN authors AS a ON a.id = b.author_id
+```
+
+```sql
+FROM books AS b
+JOIN authors AS a ON a.id = b.author_id
+```
+
+`INNER JOIN` is useful when teaching or when you want the join type to be
+visually explicit. `JOIN` is common in application queries because it is
+shorter. Neither version is faster; PostgreSQL parses them as the same kind of
+join.
+
+The shorthand applies specifically to an inner join. Continue to write other
+join types explicitly, such as `LEFT JOIN`.
+
 ## 2. Use Table Aliases to Remove Ambiguity
 
 Both tables contain columns such as `id` and `name`-like values. A bare `id`

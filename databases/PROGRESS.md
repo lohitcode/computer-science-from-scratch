@@ -28,7 +28,7 @@ kept in the history but excluded from the typical-duration calculation.
 | 10 | Model relationships | Complete | 2026-07-30 13:50 IST | 2026-07-30 14:16 IST | 26m |
 | 11 | Combine matching rows | Complete | 2026-07-30 21:55 IST | 2026-07-30 22:12 IST | 17m |
 | 12 | Preserve unmatched rows | Complete | 2026-07-30 22:13 IST | 2026-07-30 22:23 IST | 10m |
-| 13 | Design relational schemas | Not started | — | — | — |
+| 13 | Design relational schemas | Complete | 2026-08-02 08:04 IST | 2026-08-02 09:19 IST | 1h 15m |
 | 14 | Make changes atomic | Not started | — | — | — |
 | 15 | Make reads faster | Not started | — | — | — |
 | 16 | Understand query execution | Not started | — | — | — |
@@ -40,9 +40,9 @@ typical-duration calculation.
 
 ## Current Estimate
 
-- Completed: **12 of 18**
-- Remaining: **6**
-- Current estimate: **6–13 study hours**
+- Completed: **13 of 18**
+- Remaining: **5**
+- Current estimate: **5–11 study hours**
 - Confidence: **Low to medium**, because the completed same-session
   checkpoints are still introductory and later relational topics will take
   longer.

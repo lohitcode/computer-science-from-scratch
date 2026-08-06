@@ -33,18 +33,20 @@ kept in the history but excluded from the typical-duration calculation.
 | 15 | Make reads faster | Complete | 2026-08-03 23:45 IST | 2026-08-04 00:03 IST | 18m |
 | 16 | Understand query execution | Complete | 2026-08-04 08:37 IST | 2026-08-04 08:59 IST | 22m |
 | 17 | Prepare queries for applications | Complete | 2026-08-06 08:05 IST | 2026-08-06 08:23 IST | 18m (+ Stage A: 23m) |
-| 18 | Raw SQL checkpoint | Not started | — | — | — |
+| 18 | Raw SQL checkpoint | Complete | 2026-08-06 08:25 IST | 2026-08-06 16:49 IST | 8h 24m* |
 
 \* Checkpoint 01 crossed an overnight/idle period, so it is excluded from the
-typical-duration calculation.
+typical-duration calculation. Checkpoint 18 included breaks; its four reset
+stage timers totalled 2h 30m.
 
 ## Current Estimate
 
-- Completed: **17 of 18**
-- Remaining: **1**
-- Current estimate: **1–3 study hours**
-- Confidence: **Medium**, because the final checkpoint combines schema design,
-  constraints, joins, transactions, indexes, and application-shaped queries in
-  one larger exercise.
+- Completed: **18 of 18**
+- Remaining: **0**
+- Raw PostgreSQL track status: **Complete**
+- Next track: connect the Go HTTP server to PostgreSQL, introduce versioned
+  migrations, configure SQLC, and generate the first type-safe Go methods.
 
-The estimate will be recalculated after each completed checkpoint.
+Checkpoint 18 proved the complete raw-SQL foundation through schema design,
+constraints, joins, transactions, indexes, query-plan interpretation, and
+application-shaped parameterized queries.

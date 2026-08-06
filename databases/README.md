@@ -129,23 +129,21 @@ criteria, verification commands, and a stop point.
 | 17 | Prepare for applications | Write parameterized SQLC query shapes |
 | 18 | Raw SQL checkpoint | Build a small multi-table schema |
 
-## Current Position
+## Raw PostgreSQL Track Complete
 
-Completed: checkpoints 01–17. Checkpoint 18 is not started.
+Final lesson:
+[`lessons/18d-final-checkpoint-application-queries.md`](lessons/18d-final-checkpoint-application-queries.md).
 
-Checkpoint 17 was split into two interactive stages. Stage A proved the
-parameterized statements directly in PostgreSQL. Stage B translated them into
-SQLC query definitions.
+Completed: **checkpoints 01–18**.
 
-The runnable test harness must print:
+Checkpoint 18 is the final raw-SQL checkpoint and is divided into small
+interactive stages. All four stages are complete. The final stage defined
+three parameterized SQLC query contracts for the bookstore:
 
 ```text
-id|name|email
-1|Asha|asha@example.com
-order_id|customer_email
-1|asha@example.com
-order_id|product_id|quantity
-1|2|3
+GetBookByISBN(isbn)                         → one book
+ListOrderItems(orderID)                     → zero or more items
+UpdateOrderItemQuantity(orderID, bookID, q) → one updated item
 ```
 
 ## After Raw PostgreSQL

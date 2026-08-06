@@ -1,5 +1,5 @@
 SET client_min_messages TO WARNING;
-
+DEALLOCATE ALL;
 
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
@@ -23,6 +23,9 @@ CREATE TABLE orders (
  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
  customer_id INTEGER NOT NULL REFERENCES customers(id)
 );
+
+CREATE INDEX idx_orders_customer_id
+ON orders (customer_id);
 
 CREATE TABLE order_items (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -56,14 +59,30 @@ VALUES
     (1, 2, 1, 6500),
     (2, 3, 3, 8000);
 
-SELECT
-    oi.order_id,
-    c.name AS customer_name,
-    p.name AS product_name,
-    oi.unit_price_paise AS price_paise,
-    oi.quantity
-FROM orders o
-JOIN customers c ON o.customer_id =  c.id
-JOIN order_items oi ON o.id = oi.order_id
-JOIN products p ON oi.product_id = p.id
-ORDER BY o.id, p.id;
+PREPARE get_customer_by_email (TEXT) AS
+SELECT id, name, email
+FROM customers
+WHERE email = $1;
+
+EXECUTE get_customer_by_email('asha@example.com');
+
+
+PREPARE list_orders_by_customer (INTEGER) AS
+SELECT o.id AS order_id,
+    c.email AS customer_email
+FROM orders AS o
+JOIN customers AS c
+    ON c.id =  o.customer_id
+WHERE o.customer_id = $1
+ORDER BY o.id;
+
+EXECUTE list_orders_by_customer(1);
+
+
+PREPARE update_order_item_quantity (INTEGER, INTEGER, INTEGER) AS
+UPDATE order_items
+SET quantity = $3
+WHERE order_id = $1 AND product_id = $2
+RETURNING order_id, product_id, quantity;
+
+EXECUTE update_order_item_quantity(1, 2, 3);

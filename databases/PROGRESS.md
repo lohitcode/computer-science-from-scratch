@@ -29,10 +29,10 @@ kept in the history but excluded from the typical-duration calculation.
 | 11 | Combine matching rows | Complete | 2026-07-30 21:55 IST | 2026-07-30 22:12 IST | 17m |
 | 12 | Preserve unmatched rows | Complete | 2026-07-30 22:13 IST | 2026-07-30 22:23 IST | 10m |
 | 13 | Design relational schemas | Complete | 2026-08-02 08:04 IST | 2026-08-02 09:19 IST | 1h 15m |
-| 14 | Make changes atomic | Not started | — | — | — |
-| 15 | Make reads faster | Not started | — | — | — |
-| 16 | Understand query execution | Not started | — | — | — |
-| 17 | Prepare queries for applications | Not started | — | — | — |
+| 14 | Make changes atomic | Complete | 2026-08-03 15:23 IST | 2026-08-03 16:28 IST | 1h 05m |
+| 15 | Make reads faster | Complete | 2026-08-03 23:45 IST | 2026-08-04 00:03 IST | 18m |
+| 16 | Understand query execution | Complete | 2026-08-04 08:37 IST | 2026-08-04 08:59 IST | 22m |
+| 17 | Prepare queries for applications | Complete | 2026-08-06 08:05 IST | 2026-08-06 08:23 IST | 18m (+ Stage A: 23m) |
 | 18 | Raw SQL checkpoint | Not started | — | — | — |
 
 \* Checkpoint 01 crossed an overnight/idle period, so it is excluded from the
@@ -40,12 +40,11 @@ typical-duration calculation.
 
 ## Current Estimate
 
-- Completed: **13 of 18**
-- Remaining: **5**
-- Current estimate: **5–11 study hours**
-- Confidence: **Low to medium**, because the completed same-session
-  checkpoints are still introductory and later relational topics will take
-  longer.
+- Completed: **17 of 18**
+- Remaining: **1**
+- Current estimate: **1–3 study hours**
+- Confidence: **Medium**, because the final checkpoint combines schema design,
+  constraints, joins, transactions, indexes, and application-shaped queries in
+  one larger exercise.
 
-The estimate will be recalculated after each completed checkpoint. It should
-become meaningfully more accurate after checkpoints 04–06.
+The estimate will be recalculated after each completed checkpoint.

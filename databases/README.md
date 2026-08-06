@@ -129,25 +129,23 @@ criteria, verification commands, and a stop point.
 | 17 | Prepare for applications | Write parameterized SQLC query shapes |
 | 18 | Raw SQL checkpoint | Build a small multi-table schema |
 
-## Current Lesson
+## Current Position
 
-Open
-[`lessons/13-normalize-a-schema.md`](lessons/13-normalize-a-schema.md).
+Completed: checkpoints 01–17. Checkpoint 18 is not started.
 
-Completed: checkpoints 01–13. Stop before checkpoint 14 until its lesson is
-prepared.
+Checkpoint 17 was split into two interactive stages. Stage A proved the
+parameterized statements directly in PostgreSQL. Stage B translated them into
+SQLC query definitions.
 
-Checkpoint 13 teaches how normalization gives each fact one authoritative
-home and prevents update, insert, and delete anomalies.
-
-The exercise designs customers, products, orders, and order items, then
-reconstructs this report:
+The runnable test harness must print:
 
 ```text
-order_id|customer_name|product_name|price_paise|quantity
-1|Asha|Raagi Malt|5000|2
-1|Asha|Sprout Salad|6500|1
-2|Ravi|Fruit Juice|8000|3
+id|name|email
+1|Asha|asha@example.com
+order_id|customer_email
+1|asha@example.com
+order_id|product_id|quantity
+1|2|3
 ```
 
 ## After Raw PostgreSQL
@@ -178,3 +176,8 @@ build user and authentication APIs
 - [Aggregate functions](https://www.postgresql.org/docs/current/functions-aggregate.html)
 - [Foreign keys](https://www.postgresql.org/docs/current/ddl-constraints.html#DDL-CONSTRAINTS-FK)
 - [Joined tables](https://www.postgresql.org/docs/current/queries-table-expressions.html#QUERIES-JOIN)
+- [Transactions](https://www.postgresql.org/docs/current/tutorial-transactions.html)
+- [Indexes](https://www.postgresql.org/docs/current/indexes.html)
+- [`EXPLAIN`](https://www.postgresql.org/docs/current/using-explain.html)
+- [`PREPARE`](https://www.postgresql.org/docs/current/sql-prepare.html)
+- [SQLC query annotations](https://docs.sqlc.dev/en/latest/reference/query-annotations.html)

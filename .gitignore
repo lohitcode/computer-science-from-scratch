@@ -58,3 +58,7 @@ alembic/versions/*.pyc
 .zed/
 *.swp
 *.swo
+
+# CLI caches / local agent state
+.zcode/
+.wrangler/

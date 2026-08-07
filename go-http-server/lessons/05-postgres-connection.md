@@ -1,172 +1,71 @@
 # Lesson 5: Connect the Server to PostgreSQL
 
 **Course progress:** 4 of 12 lessons complete
+**Prerequisite:** Raw PostgreSQL track complete (checkpoints 01–18)
 
-The server currently loses all application state when the process exits, and it
-has no way to share state across requests or restarts. This lesson introduces
-persistence by opening one long-lived connection pool to a PostgreSQL database
-when the server starts.
+You already know PostgreSQL: tables, constraints, joins, transactions, indexes,
+query plans, and parameterized application queries. This lesson does **not**
+re-teach SQL or the relational model.
 
-You will learn:
+It teaches the one thing you have not done yet: reach PostgreSQL from Go
+correctly. That means a long-lived connection pool, startup verification, clear
+ownership, and a clean package boundary — nothing more.
 
-- why an application uses a database that runs as a separate process;
-- how a Go program reaches PostgreSQL over the network;
-- the relationship between `database/sql` and a database driver;
-- why `sql.Open` does not prove a connection works;
-- what `*sql.DB` actually represents;
-- why the connection string is deployment configuration, like `PORT`;
-- how startup and shutdown should own the database handle;
-- why secrets must never be committed.
+You will learn the Go-specific concepts below. Skip nothing here even if the
+SQL feels obvious.
 
-This lesson does not create tables, run migrations, write queries, introduce
-SQLC, add graceful HTTP shutdown, or build authentication. First establish a
-correct database connection boundary against PostgreSQL.
+## What this lesson does not do
 
-## Memory disappears; persistent data remains
+- It does not create tables or run migrations.
+- It does not write application queries.
+- It does not introduce SQLC.
+- It does not add graceful HTTP shutdown or authentication.
 
-Values in Go variables live only while the process is running:
+First establish a correct database connection boundary against PostgreSQL.
+Everything else stacks on top of it.
+
+## You know the database; now learn the driver layer
+
+You have run `psql` against PostgreSQL many times. `psql` is one client. Your Go
+program is another client, speaking the same wire protocol through a library:
 
 ```text
-start server
-    ↓
-create Go values in memory
-    ↓
-stop server
-    ↓
-memory is released
+your Go app  ──lib/pq wire protocol──>  PostgreSQL server
 ```
 
-A database stores state outside the process, so it survives restarts:
+But Go programs do not usually speak that protocol by hand. The standard library
+hides it behind a common API:
 
 ```text
-server process ──writes──> PostgreSQL
-      stops
-new process    ───reads──> same PostgreSQL
-```
-
-Later, users and sessions will survive server restarts because their records
-will live in the database rather than only in maps or slices.
-
-## PostgreSQL is a separate process, not a file
-
-Unlike an embedded database such as SQLite, PostgreSQL is a server. It runs as
-its own long-lived process and owns its own files:
-
-```text
-PostgreSQL server process
-├── manages data files on disk
-├── accepts network connections
-├── enforces SQL, constraints, transactions
-└── authenticates clients
-```
-
-Your Go application is a *client* of that server. It reaches PostgreSQL across
-the network, exactly as one process talks to another:
-
-```text
-Go server ──network (TCP)──> PostgreSQL server ──> data files
-```
-
-This has real consequences for this lesson:
-
-- the server must already be running and reachable before your app starts;
-- the app must authenticate, so connection details include credentials;
-- the app must tolerate the network failing between client and server.
-
-You already have a PostgreSQL server from the database track. This lesson reuses
-it instead of adding new infrastructure.
-
-## The connection string is deployment input
-
-To connect, the client must tell the driver four things at minimum:
-
-```text
-who     user
-what    password
-where   host and port
-which   database name
-```
-
-These are deployment facts, not program logic. The same binary should run against
-a local database during development and a different database in production
-without being rebuilt, exactly like `PORT`:
-
-```text
-local development   DATABASE_URL=postgres://course_user:course_password@localhost:5432/sql_course?sslmode=disable
-integration test    DATABASE_URL=postgres://test_user:test_password@localhost:5432/test_db?sslmode=disable
-production          DATABASE_URL=postgres://app:••••••@db.internal:5432/app?sslmode=require
-```
-
-The program stays the same; its input changes.
-
-For this track, represent all connection details as a single environment
-variable:
-
-```text
-DATABASE_URL
-```
-
-A PostgreSQL connection string (DSN) has a URL form:
-
-```text
-postgres://USER:PASSWORD@HOST:PORT/DBNAME?sslmode=disable
-```
-
-`sslmode=disable` is appropriate for the local learning container, which has no
-TLS configured. Production typically uses `sslmode=require` or higher.
-
-### Relationship to the database track's variables
-
-The database track's `compose.yaml` and `.env.example` define separate variables
-for the *server container*:
-
-```text
-POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_PORT
-```
-
-Those configure the PostgreSQL server when it boots. `DATABASE_URL` is different:
-it is the *client's* instructions for reaching that server. The values are the
-same; the role differs. This lesson's application reads only `DATABASE_URL`.
-
-## Go separates database API from database driver
-
-Go's standard library provides:
-
-```text
-database/sql
-```
-
-It defines common database concepts — handles, connections, queries, rows,
-transactions, connection pooling, and context-aware operations. It does not
-contain a PostgreSQL implementation.
-
-A driver translates the common `database/sql` operations into the wire protocol
-of one specific database:
-
-```text
-your application
+application code
       ↓
-database/sql
+database/sql            ← Go standard library: handles, pools, contexts
       ↓
-PostgreSQL driver
+driver (pgx)            ← translates database/sql calls into the PG wire protocol
       ↓
 PostgreSQL server
 ```
 
-This project will use the `pgx` driver:
+Two questions fall out of this split, and both shape the code you write.
+
+## `database/sql` is the API; the driver is the implementation
+
+Go's standard library provides `database/sql`. It defines the *concepts* — a
+database handle, connections, queries, rows, transactions, pooling,
+context-aware operations — but it contains **no PostgreSQL implementation**.
+
+A driver fills that gap. This project uses `pgx`:
 
 ```text
 github.com/jackc/pgx/v5
 ```
 
-It is a modern, actively maintained pure-Go driver for PostgreSQL.
+### Why the driver uses a blank import
 
-## Why the driver uses a blank import
-
-Database drivers register themselves with `database/sql` during package
-initialization. Your code needs that registration side effect, but it does not
-normally call an exported driver function directly. Go expresses a
-side-effect-only import with the blank identifier.
+Drivers register themselves with `database/sql` during package initialization.
+Your code needs that registration side effect, but does not normally call an
+exported driver function directly. Go expresses a side-effect-only import with
+the blank identifier.
 
 With `pgx`'s standard-library adapter, the registration import is:
 
@@ -180,88 +79,45 @@ and it registers the driver name:
 pgx
 ```
 
-The mental model is:
+The mental model:
 
 ```text
 program imports driver
         ↓
 driver initialization runs
         ↓
-driver registers name "pgx"
+driver registers name "pgx" with database/sql
         ↓
-sql.Open can find that driver
+sql.Open("pgx", dsn) can find that driver
 ```
 
-Without the import, the source may still mention `"pgx"`, but `database/sql`
-will not know which implementation owns that name.
+Without the blank import, the source may still mention `"pgx"`, but
+`database/sql` will not know which implementation owns that name.
 
-## `sql.Open` is intentionally lazy
+## `*sql.DB` is a pool handle, not a connection
 
-The name can be misleading. `sql.Open` validates arguments and creates a
-database handle, but it does not necessarily establish a real network connection
-immediately.
+This is the single most important concept in this lesson, and the name hides
+it. `*sql.DB` is **not** the database, and **not** one connection.
 
-Conceptually:
-
-```text
-sql.Open
-    ↓
-create configured database handle
-    ↓
-real connection may happen later
-```
-
-Therefore this is not enough to prove startup connectivity:
-
-```text
-Open returned no error
-```
-
-Use a context-aware ping during startup:
-
-```text
-Open
-  ↓
-PingContext with timeout
-  ↓
-database is reachable or startup fails
-```
-
-Failing during startup is better than reporting "server ready" and discovering
-the database problem on the first user request. A server that boots but cannot
-reach its data is not actually ready.
-
-## What `*sql.DB` really is
-
-Despite its name, `*sql.DB` is not the database itself and not one permanent
-connection. It is a concurrency-safe handle that manages a pool of connections:
+It is a concurrency-safe handle that manages a **pool** of connections:
 
 ```text
 *sql.DB
 ├── available connection
 ├── in-use connection
-└── connection-management policy
+└── pool-management policy (max open, max idle, lifetime, etc.)
 ```
 
-Create one long-lived handle during application startup and share it with the
-parts of the application that need database access.
+Consequences for how you write your app:
 
-Do not do this for every request:
+- Create **one** long-lived `*sql.DB` at startup and share it across the whole
+  application.
+- **Never** open a handle per request. That defeats pooling, leaks resources,
+  and makes ownership unclear.
+- `*sql.DB` is safe for concurrent use — many goroutines (one per HTTP request)
+  can use the same handle.
 
-```text
-request
-  ↓
-sql.Open
-  ↓
-query
-  ↓
-Close
-```
-
-Repeatedly constructing handles defeats pooling, leaks resources, and makes
-ownership unclear.
-
-The correct lifetime is:
+The correct lifetime:
 
 ```text
 process starts
@@ -275,50 +131,108 @@ process shuts down
 close *sql.DB once
 ```
 
-## Secrets must never be committed
+This is the same "open once, close once" ownership reasoning you already apply
+to files and network listeners. The only new idea is that the handle is a pool.
 
-`DATABASE_URL` contains a password. The lesson that adds it must also make sure
-it cannot be committed by accident.
+## `sql.Open` is lazy — that is a trap
 
-Process-local configuration such as a `.env` file is convenient for development,
-but it is runtime input, not source. Confirm the repository ignores `.env`
-*before* you put credentials in it:
+This is the second concept that bites people.
 
-```text
-.env            runtime secrets; ignore
-.env.example    documented non-secret template; commit
-```
+`sql.Open(driverName, dataSourceName)` validates its arguments and creates the
+handle, but it does **not** necessarily establish a real network connection
+immediately. The real connection may happen later, on first use.
 
-The rule:
+So this is **not** proof the database is reachable:
 
 ```text
-if it contains a real password, it must be ignored, not tracked
+db, err := sql.Open("pgx", dsn)
+// err == nil  →  does NOT prove the DB is up
 ```
 
-## The database package boundary
+If you start serving requests at this point and the DB is actually down, your
+"healthy" server will fail on the first real query — the worst time to discover
+it.
 
-Create:
+The fix: **ping with a bounded context during startup.**
+
+```text
+sql.Open("pgx", dsn)
+    ↓
+db.PingContext(ctx)     ← ctx has a deadline
+    ↓
+reachable → continue startup
+unreachable → startup fails now, loudly
+```
+
+Failing at startup is far better than reporting "server ready" and discovering
+the problem on the first user request. A server that boots but cannot reach its
+data is not actually ready.
+
+## The connection string is deployment configuration
+
+You know PostgreSQL connection strings from the database track. As a quick
+reminder, the URL form is:
+
+```text
+postgres://USER:PASSWORD@HOST:PORT/DBNAME?sslmode=disable
+```
+
+For this track, the app reads the whole string from one environment variable:
+
+```text
+DATABASE_URL
+```
+
+Why one variable rather than separate `PGHOST`, `PGUSER`, etc.? Because the
+connection string is a single deployment fact, and treating it as one value keeps
+configuration simple and swappable:
+
+```text
+local development   postgres://course_user:course_password@localhost:5432/sql_course?sslmode=disable
+integration test    postgres://test_user:test_password@localhost:5432/test_db?sslmode=disable
+production          postgres://app:••••••@db.internal:5432/app?sslmode=require
+```
+
+`sslmode=disable` is right for the local learning container (no TLS configured).
+Production typically uses `sslmode=require` or higher.
+
+### Relationship to the database track's variables
+
+Your `databases/compose.yaml` and `.env.example` define separate variables for
+the *server container*:
+
+```text
+POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_PORT
+```
+
+Those configure the PostgreSQL **server** when it boots. `DATABASE_URL` is
+different: it is the **client's** instructions for reaching that server. The
+values are the same; the role differs. This lesson's application reads only
+`DATABASE_URL`.
+
+## The package boundary: `internal/database`
+
+Create one new package:
 
 ```text
 internal/database/database.go
 ```
 
-The package owns:
+It owns:
 
 ```text
-driver registration
+driver registration (the blank import lives here)
 opening the database
-startup connectivity verification
+startup connectivity verification (PingContext)
 cleanup on failed startup
 returning the verified handle
 ```
 
-It does not own:
+It does **not** own:
 
 - HTTP routing;
-- environment lookup (the caller passes the connection string in);
-- schema creation;
-- migrations;
+- environment lookup (the caller passes the DSN in);
+- schema creation or migrations;
 - user queries;
 - JSON responses.
 
@@ -336,74 +250,60 @@ verified *sql.DB
 or an error
 ```
 
-Passing the context from the caller makes the startup deadline explicit. The
-database package should not secretly choose an unbounded background operation.
+Two reasons the context comes from the caller:
 
-Passing the DSN from the caller keeps environment reading in the configuration
-layer, where `PORT` already lives. Configuration is read once and passed down;
-the database package does not read the environment itself.
+1. It makes the startup deadline explicit and visible in `main`, where process
+   lifetime decisions belong.
+2. The database package should not secretly choose an unbounded background
+   operation. A hang in startup must be bounded by an explicit timeout.
 
-## Why startup needs a timeout context
-
-An external network operation should not be allowed to hang process startup
-forever:
-
-```text
-main creates startup context with deadline
-        ↓
-database.Open receives context
-        ↓
-PingContext observes deadline
-        ↓
-success or bounded failure
-```
-
-Use a short learning timeout, such as five seconds. The exact production value
-depends on the environment.
-
-The caller that creates a derived context must also call its cancellation
-function so timer resources are released promptly.
+And the DSN comes from the caller (via `config`) for the same reason `PORT`
+does: configuration is read once in the config layer and passed down. The
+database package does not read the environment itself.
 
 ## Error cleanup and ownership
 
 If `sql.Open` creates a handle but `PingContext` fails, the database package
 must close that handle before returning the error. Ownership changes only after
-success:
+a successful return:
 
 ```text
-database package opens handle
-        ↓
-ping fails
-        ↓
-database package still owns it
-        ↓
-database package closes it
+database.Open
+    ↓
+sql.Open succeeds → handle exists
+    ↓
+PingContext fails
+    ↓
+database package still owns the handle
+    ↓
+database package closes it, then returns the error
 ```
 
 After a successful return:
 
 ```text
-database package returns handle
-        ↓
-main/application now owns it
-        ↓
-main/application closes it at shutdown
+database package returns the verified handle
+    ↓
+main now owns it
+    ↓
+main closes it when the process shuts down
 ```
 
-This is the same ownership reasoning used for files and network connections.
+This is the same ownership reasoning you used for files and network connections.
+Open it, prove it works, hand it off — or clean it up yourself on failure.
 
-## Update the composition root
+## The new composition root
 
-The startup flow becomes:
+Your startup flow in `main` becomes:
 
 ```text
-load configuration
+load configuration (PORT + DATABASE_URL)
     ↓
-create bounded startup context
+create bounded startup context (5 seconds)
     ↓
-open and verify PostgreSQL
+open and verify PostgreSQL (internal/database)
     ↓
-arrange database close
+arrange database close (defer db.Close())
     ↓
 construct router
     ↓
@@ -412,33 +312,44 @@ construct HTTP server
 listen
 ```
 
-Do not pass the database into the health handler yet. The existing `/health`
-endpoint is a *liveness* check: it proves the HTTP process can respond.
+### What `/health` should and should not do
 
-A database-dependent *readiness* endpoint is a separate concept that will be
-introduced when the application has database-backed behavior. For now, a
-successful startup already proved the database is reachable; `/health` continues
-to answer without touching it.
+Do **not** pass the database into the health handler in this lesson.
+
+The existing `/health` endpoint is a **liveness** check: it proves the HTTP
+process can respond. That is a meaningful concept, and it stays unchanged.
+
+A database-dependent **readiness** check ("the server is up *and* can serve real
+requests") is a separate concept. It belongs later, once the app has real
+database-backed behavior. For now, a successful startup already proved the
+database is reachable; `/health` continues to answer without touching it.
+
+Keep the Lesson 4 response exactly:
+
+```text
+GET /health → 200 {"status":"ok"}
+```
 
 ## Your task
 
-### Configuration
+### 1. Configuration — `internal/config/config.go`
 
-- Add a `DatabaseURL` field to `config.Config` (type `string`).
+- Add a `DatabaseURL` field (type `string`) to `Config`.
 - Read it from the `DATABASE_URL` environment variable.
 - Reject startup when it is missing or empty, using the same strict-error style
   already used for `PORT` (a new exported error in `config`).
 - Preserve the existing strict `PORT` validation unchanged.
 
-### Secret hygiene
+### 2. Secret hygiene
 
-- Ensure `.env` files are ignored by the repository (check `git status --ignored`
-  after editing your local `.env`; it must appear as ignored, not untracked).
-- Add a `go-http-server/.env.example` that documents the variable names *without
-  real secrets* (for example a placeholder DSN). This file is committed; the
-  real `.env` is not.
+- The repo already ignores `.env` globally. Before writing `DATABASE_URL` into
+  your local `.env`, confirm with `git status --ignored` that it is ignored, not
+  untracked.
+- Add `go-http-server/.env.example` documenting the variable names **without
+  real secrets** (a placeholder DSN). This file is committed; the real `.env`
+  is not.
 
-### Dependency
+### 3. Dependency
 
 Add the driver when your source imports it:
 
@@ -446,27 +357,27 @@ Add the driver when your source imports it:
 go get github.com/jackc/pgx/v5
 ```
 
-### Database package
+### 4. Database package — `internal/database/database.go`
 
-Create `internal/database/database.go`.
+Create it. It must:
 
-It must:
-
-- accept a context and a connection string (DSN);
+- blank-import `github.com/jackc/pgx/v5/stdlib` for the registration side
+  effect;
+- export a function that accepts a `context.Context` and a connection string;
 - open the `"pgx"` driver via `sql.Open`;
-- ping with the supplied context using `PingContext`;
-- close the handle if the ping fails;
+- ping with the supplied context using `db.PingContext`;
+- **close the handle if the ping fails** before returning the error;
 - return the verified `*sql.DB` on success;
 - wrap errors with useful operation context.
 
-It must not create tables or execute migrations. It must not read the
-environment.
+It must **not** create tables, run migrations, read the environment, or write
+queries.
 
-### Main
+### 5. Main — `cmd/api/main.go`
 
 - Preserve immediate configuration-error handling.
-- Create a five-second startup context (and call its cancel function).
-- Open and verify the database before starting HTTP.
+- Create a 5-second startup context (and call its cancel function).
+- Open and verify the database **before** starting HTTP.
 - Report a database startup error and stop.
 - Close the verified database handle when `main` returns.
 - Preserve router and server construction.
@@ -476,7 +387,7 @@ environment.
 
 ### Start PostgreSQL
 
-Reuse the database track's container:
+Reuse the database track's container (it may already be running):
 
 ```bash
 cd ../databases
@@ -488,8 +399,7 @@ Wait until `ps` shows the `postgres` service as `healthy`.
 
 ### Provide a connection string
 
-From `go-http-server`, put your local DSN in a `.env` that Air (or your shell)
-will load, for example:
+From `go-http-server`, put your local DSN in `.env` (Air loads it), for example:
 
 ```text
 PORT=8080
@@ -527,7 +437,7 @@ Content-Type: application/json
 {"status":"ok"}
 ```
 
-### Verify startup actually checks the database
+### Verify startup actually checks the database (negative test 1)
 
 Prove the ping is real, not ceremonial. Stop PostgreSQL and start the server
 again:
@@ -536,10 +446,10 @@ again:
 cd ../databases
 docker compose stop postgres
 cd ../go-http-server
-go run ./cmd/api     # should fail to start with a database error
+go run ./cmd/api     # should FAIL to start with a database error
 ```
 
-Then restart PostgreSQL and confirm the server starts cleanly again:
+Then restart PostgreSQL and confirm the server starts cleanly:
 
 ```bash
 cd ../databases
@@ -549,7 +459,7 @@ cd ../go-http-server
 go run ./cmd/api
 ```
 
-### Verify a bad DSN fails startup
+### Verify a bad DSN fails startup (negative test 2)
 
 With PostgreSQL running, give an invalid `DATABASE_URL` (wrong database name or
 bad credentials) and confirm the server refuses to start.
@@ -581,19 +491,18 @@ internal/database
 
 ## Questions you should be able to answer
 
-1. What survives after the Go process exits?
-2. How is PostgreSQL different from an embedded database like SQLite?
-3. Why is the application a *client* of PostgreSQL?
-4. What responsibility belongs to `database/sql`?
-5. What responsibility belongs to the `pgx` driver?
-6. Why is the driver imported as a blank import?
-7. Why is `sql.Open` not a connectivity check?
-8. What does `*sql.DB` represent, and why should the process create only one?
-9. Why is `DATABASE_URL` configuration rather than a hardcoded constant?
-10. Why does `PingContext` receive a context?
-11. Who closes the handle when the ping fails? Who closes it after success?
-12. Why must `.env` be ignored while `.env.example` is committed?
-13. Why does `/health` remain independent of PostgreSQL in this lesson?
+1. What is the difference between `database/sql` and the `pgx` driver?
+2. Why is the driver imported with `_`?
+3. What does `*sql.DB` represent, and why is it not "one connection"?
+4. Why should the process create exactly one long-lived `*sql.DB`?
+5. Why is `sql.Open` returning no error not proof of connectivity?
+6. What does `PingContext` do, and why does it take a context?
+7. Who closes the handle when the ping fails? Who closes it after success?
+8. Why does the startup context's cancel function still need to be called even
+   on the success path?
+9. Why does `DATABASE_URL` come from configuration rather than being hardcoded
+   in the database package?
+10. Why does `/health` stay independent of PostgreSQL in this lesson?
 
 ## Stop here
 

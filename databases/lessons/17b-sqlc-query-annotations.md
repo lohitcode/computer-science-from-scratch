@@ -204,8 +204,8 @@ runnable equivalents of these definitions.
 
 1. Run `main.sql` twice again to confirm the source queries still work.
 2. Say `done`.
-3. Codex will compare each statement in `queries.sql` with its proven Stage A
-   equivalent and inspect every annotation contract.
+3. Your reviewer will compare each statement in `queries.sql` with its proven
+   Stage A equivalent and inspect every annotation contract.
 
 ## Acceptance Criteria
 

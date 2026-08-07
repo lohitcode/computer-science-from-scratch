@@ -11,13 +11,12 @@ main
 # Backup files
 *~
 
-# macOS
+# macOS / Windows
 .DS_Store
+Thumbs.db
 
-# Generated lesson files
-/go-basics/notes.txt
-/go-basics/.env
-/go-basics/tmp/
+# Environment variables (secrets; never commit)
+.env
 
 # Python
 __pycache__/
@@ -29,17 +28,33 @@ __pycache__/
 dist/
 build/
 .pytest_cache/
-.coverage
+.coverage/
 htmlcov/
 
-# Virtual Environments
+# Virtual environments
 .venv/
 venv/
 env/
 ENV/
 
-# IDE
+# Go
+go-http-server/tmp/
+go-http-server/build-errors.log
+
+# Generated lesson files
+/go-basics/notes.txt
+/go-basics/tmp/
+
+# Local databases
+*.db
+*.sqlite
+
+# Alembic
+alembic/versions/*.pyc
+
+# IDE / editors
 .vscode/
 .idea/
+.zed/
 *.swp
 *.swo

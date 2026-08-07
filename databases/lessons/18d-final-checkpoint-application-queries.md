@@ -138,8 +138,8 @@ through PostgreSQL. Here, correctness is the query-file contract itself.
 1. Run `main.sql` twice and ensure the Stage C output remains unchanged.
 2. Inspect `queries.sql`: it must contain exactly three statements and three
    immediately preceding `-- name:` annotations.
-3. Say `done`. Codex will inspect every parameter position, join, selected
-   column, annotation, and result contract.
+3. Say `done`. Your reviewer will inspect every parameter position, join,
+   selected column, annotation, and result contract.
 
 ## Acceptance Criteria
 

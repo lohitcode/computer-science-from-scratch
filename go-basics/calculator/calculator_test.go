@@ -4,8 +4,7 @@ import (
 	"testing"
 )
 
-// TODO 1: Write TestAdd.
-// Call Add(2, 3) and fail the test if the result is not 5.
+// TestAdd verifies that Add(2, 3) returns 5.
 func TestAdd(t *testing.T) {
 	got := Add(2, 3)
 	want := 5
@@ -14,9 +13,7 @@ func TestAdd(t *testing.T) {
 	}
 }
 
-// TODO 2: Write TestDivide.
-// Call Divide(10, 2) and check both returned values:
-// the result must be 5 and the error must be nil.
+// TestDivide verifies the normal case: Divide(10, 2) returns 5 and no error.
 func TestDivide(t *testing.T) {
 	got, err := Divide(10, 2)
 	if err != nil {
@@ -28,11 +25,7 @@ func TestDivide(t *testing.T) {
 	}
 }
 
-// TODO 3: Write TestDivideByZero.
-// Call Divide(10, 0) and verify that:
-//   - an error is returned
-//   - err.Error() equals "cannot divide by zero"
-
+// TestDivideByZero verifies that Divide(10, 0) returns the expected error.
 func TestDivideByZero(t *testing.T) {
 	_, err := Divide(10, 0)
 	if err == nil {
@@ -44,5 +37,3 @@ func TestDivideByZero(t *testing.T) {
 	}
 
 }
-
-// This reference keeps the testing import valid until you write the tests.

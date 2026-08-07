@@ -5,7 +5,7 @@ Timezone: **Asia/Kolkata (IST)**
 ## How Timing Works
 
 - **Started** means the checkpoint was created and given to the learner.
-- **Completed** means Codex reviewed the exercise and verified that it works.
+- **Completed** means the exercise was reviewed and verified that it works.
 - **Wall time** is the difference between those timestamps.
 - Wall time includes sleep, breaks, and time spent on other work.
 

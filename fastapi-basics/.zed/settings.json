@@ -1,9 +1,0 @@
-{
-  "lsp": {
-    "basedpyright": {
-      "python": {
-        "pythonPath": ".venv/bin/python3"
-      }
-    }
-  }
-}

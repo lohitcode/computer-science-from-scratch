@@ -9,55 +9,56 @@
 
 | Lesson | Topic | Time | Status |
 |--------|-------|------|--------|
-| 1 | Variables & Types | 30 min | ⏳ |
-| 2 | Functions & Control Flow | 30 min | ⏳ |
-| 3 | Data Structures | 45 min | ⏳ |
-| 4 | Classes & Type Hints | 30 min | ⏳ |
-| 5 | Async & Error Handling | 30 min | ⏳ |
+| 1 | Variables & Types | 30 min | ✅ |
+| 2 | Functions & Control Flow | 30 min | ✅ |
+| 3 | Data Structures | 45 min | ✅ |
+| 4 | Classes & Type Hints | 30 min | ✅ |
+| 5 | Async & Error Handling | 30 min | ✅ |
+| 6 | Decorators | 30 min | ⏳ Current |
 
 ---
 
 ## 📝 Lesson Checklists
 
 ### Lesson 1: Variables & Types
-- [ ] Variables (no let/const)
-- [ ] Basic types (str, int, float, bool, None)
-- [ ] Type conversions
-- [ ] F-strings
-- [ ] Naming conventions (snake_case!)
-- [ ] Operators (and, or, not)
+- [x] Variables (no let/const)
+- [x] Basic types (str, int, float, bool, None)
+- [x] Type conversions
+- [x] F-strings
+- [x] Naming conventions (snake_case!)
+- [x] Operators (and, or, not)
 
 ### Lesson 2: Functions & Control Flow
-- [ ] Functions with def
-- [ ] Default parameters
-- [ ] Multiple return values
-- [ ] Conditionals (if/elif/else)
-- [ ] Loops (for, while)
-- [ ] List comprehensions
+- [x] Functions with def
+- [x] Default parameters
+- [x] Multiple return values
+- [x] Conditionals (if/elif/else)
+- [x] Loops (for, while)
+- [x] List comprehensions
 - [ ] Lambda functions
 
 ### Lesson 3: Data Structures
-- [ ] Lists (methods, slicing)
-- [ ] Dictionaries (key-value pairs)
-- [ ] Sets (unique values)
-- [ ] Tuples (immutable)
+- [x] Lists (methods, slicing)
+- [x] Dictionaries (key-value pairs)
+- [x] Sets (unique values)
+- [x] Tuples (immutable)
 - [ ] Nested structures
 - [ ] Real-world patterns
 
 ### Lesson 4: Classes & Type Hints
-- [ ] Type hints (critical for FastAPI!)
-- [ ] Optional, List, Dict types
-- [ ] Basic classes
+- [x] Type hints (critical for FastAPI!)
+- [x] Optional, List, Dict types
+- [x] Basic classes
 - [ ] Pydantic models
 - [ ] Inheritance
 - [ ] Data classes
 
 ### Lesson 5: Async & Error Handling
-- [ ] try/except blocks
-- [ ] Raising exceptions
+- [x] try/except blocks
+- [x] Raising exceptions
 - [ ] Custom exceptions
-- [ ] Context managers (with)
-- [ ] async/await
+- [x] Context managers (with)
+- [x] async/await
 - [ ] asyncio.gather
 
 ---
@@ -66,13 +67,13 @@
 
 When you're done, you should be able to:
 
-- [ ] Write Python with correct naming conventions
-- [ ] Use type hints in functions
-- [ ] Work with lists, dicts, sets confidently
-- [ ] Create classes with type hints
-- [ ] Handle errors gracefully
-- [ ] Write basic async functions
-- [ ] Use context managers for cleanup
+- [x] Write Python with correct naming conventions
+- [x] Use type hints in functions
+- [x] Work with lists, dicts, sets confidently
+- [x] Create classes with type hints
+- [x] Handle errors gracefully
+- [x] Write basic async functions
+- [x] Use context managers for cleanup
 
 ---
 

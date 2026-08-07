@@ -10,23 +10,18 @@ This repository records both the lessons and the code written while learning. Ea
 
 - **C basics** — memory, pointers, structs, allocation, and low-level programming
 - **Go basics** — packages, interfaces, concurrency, testing, files, JSON, HTTP, middleware, and context
+- **PostgreSQL raw SQL** — tables, constraints, joins, transactions, indexes, query plans, and parameterized application queries
 
 ### Other tracks in progress
 
 - **Python basics** — language fundamentals and common Python patterns
 - **FastAPI foundations** — API basics and CRUD application structure
 - **FastAPI CRUD** — database-backed API practice
+- **Production Go HTTP server** — module structure, routing, `/health`, timeouts, and environment configuration (lessons 1–4 complete)
 
 ### Current track
 
-- **Data Structures & Algorithms with Go**
-  - complexity analysis
-  - arrays and slices
-  - searching and sorting
-  - linked structures
-  - stacks and queues
-  - hash tables
-  - trees, heaps, and graphs
+- **Production Go HTTP server → PostgreSQL** — opening a long-lived connection pool, startup verification, and graceful ownership; then versioned migrations and SQLC
 
 ## Engineering Roadmap
 
@@ -63,8 +58,9 @@ Machine learning may be explored later as a specialization. The primary goal is 
 | [`go-basics/`](go-basics/) | Go and backend-concurrency foundations | Complete |
 | [`fastapi-basics/`](fastapi-basics/) | Python HTTP API foundations | In progress |
 | [`fastapi-crud/`](fastapi-crud/) | Database-backed API practice | In progress |
-| [`dsa-go/`](dsa-go/) | Data structures, algorithms, and complexity | Current |
-| [`databases/`](databases/) | Persistent data, SQL, indexes, and transactions | Planned |
+| [`dsa-go/`](dsa-go/) | Data structures, algorithms, and complexity | In progress |
+| [`databases/`](databases/) | Persistent data, SQL, indexes, and transactions | Complete |
+| [`go-http-server/`](go-http-server/) | Production Go HTTP server connected to PostgreSQL | Current |
 | [`networking/`](networking/) | Protocols, packets, HTTP, and network debugging | Planned |
 | [`operating-systems/`](operating-systems/) | Processes, memory, files, and concurrency | Planned |
 | [`system-design/`](system-design/) | Scalable and reliable system architecture | Planned |
@@ -97,11 +93,8 @@ Conceptual guides live in each track's `lessons/` directory. The current exercis
 ## Current Exercise
 
 ```bash
-cd dsa-go
-go run .
+cd go-http-server
+go run ./cmd/api
 ```
 
-See [`dsa-go/lessons/big-o-and-linear-search.md`](dsa-go/lessons/big-o-and-linear-search.md) before beginning the first DSA problem.
-
-The complete course sequence is in the
-[`dsa-go` track index](dsa-go/README.md).
+See [`go-http-server/lessons/05-postgres-connection.md`](go-http-server/lessons/05-postgres-connection.md) for the next server lesson: connect the Go server to PostgreSQL.

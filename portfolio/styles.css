@@ -332,7 +332,10 @@ h1 {
 .contact h2 { max-width: 850px; margin: 18px 0; font-size: clamp(3rem, 6vw, 5.5rem); line-height: 0.98; }
 .contact > p:not(.eyebrow) { max-width: 620px; color: var(--muted); }
 .contact-links { display: flex; flex-wrap: wrap; gap: 14px 28px; margin-top: 30px; }
-.contact-links a { color: var(--gold); font-family: "DM Mono", monospace; font-size: 0.82rem; text-underline-offset: 5px; }
+.contact-links a { color: var(--gold); font-family: "DM Mono", monospace; font-size: 0.82rem; text-underline-offset: 5px; display: inline-flex; align-items: center; gap: 8px; }
+.contact-icon { flex-shrink: 0; }
+.header-link { display: inline-flex; align-items: center; gap: 6px; }
+.header-icon { flex-shrink: 0; }
 
 footer { display: flex; justify-content: space-between; padding: 26px 0 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.76rem; }
 footer p { margin: 0; }

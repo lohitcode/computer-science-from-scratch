@@ -342,7 +342,7 @@ footer p { margin: 0; }
 footer a { text-underline-offset: 4px; }
 .footer-aside { margin-left: 8px; color: var(--gold); font-style: italic; }
 
-:focus-visible { outline: none; }
+:focus, :focus-visible { outline: none; }
 
 .reveal { opacity: 0; transform: translateY(14px); transition: opacity 500ms ease, transform 500ms ease; }
 .reveal.is-visible { opacity: 1; transform: translateY(0); }

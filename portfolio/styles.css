@@ -94,7 +94,7 @@ nav a:focus-visible,
 .header-link:hover,
 .header-link:focus-visible { color: var(--gold); }
 
-.header-link { justify-self: end; }
+.header-social { display: flex; align-items: center; gap: 14px; justify-self: end; }
 
 .hero {
   min-height: 650px;
